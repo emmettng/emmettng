@@ -2,6 +2,29 @@ baseurl = "/"
 languageCode = "en-us"
 theme = "hello-friend-ng"
 
+archetypeDir = "archetypes"
+contentDir   = "content"
+dataDir      = "data"
+layoutDir    = "layouts"
+publishDir   = "public"
+
+buildDrafts  = false
+buildFuture  = false
+buildExpored = false
+canonifyURLs = true
+
+enableRobotsTXT = true
+enableGitInfo   = false
+enableEmoji     = true
+enableMissingTranslationPlaceholders = false
+disableRSS     = false
+disableSitemap = false
+disable404     = false
+disableHugoGeneratorInject = false
+
+[author]
+  name = "WU HAO"
+
 [params]
   dateform        = "Jan 2, 2006"
   dateformShort   = "Jan 2"
@@ -9,8 +32,8 @@ theme = "hello-friend-ng"
   dateformNumTime = "2006-01-02 15:04 -0700"
 
   # Metadata mostly used in document's head
-  description = "Homepage and blog by Djordje Atlialp"
-  keywords = "homepage, blog, science, informatics, development, programming"
+  description = "Homepage and blog by emmett Ng"
+  keywords = "homepage, General Intelligence, Computational neuroscience, Category Theory, Haskell, Data Science, programming"
   images = [""]
 
   # Directory name of your blog content (default is `content/posts`)
@@ -36,7 +59,7 @@ theme = "hello-friend-ng"
 [languages]
   [languages.en]
     title = "emmett Ng"
-    subtitle = "A simple theme for Hugo"
+    subtitle = "yes you are"
     keywords = ""
     copyright = ""
     readOtherPosts = "Read other posts"
@@ -53,16 +76,16 @@ theme = "hello-friend-ng"
     [languages.en.menu]
       [[languages.en.menu.main]]
         identifier = "about"
-        name = "Me"
+        name = "mE"
         url = "/about"
       [[languages.en.menu.main]]
         identifier = "category"
-        name = "CategoryTheory"
+        name = "Category&Haskell"
         url = "posts/"
       [[languages.en.menu.main]]
-        identifier = "haskell"
-        name = "Hashekll"
-        url = "haskell/"
+        identifier = "blogs"
+        name = "Blogs"
+        url = "blogs/"
       [[languages.en.menu.main]]
         identifier = "data"
         name = "DataScience"
