@@ -1,3 +1,73 @@
-baseURL = "http://example.org/"
+baseurl = "/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+theme = "hello-friend-ng"
+
+[params]
+  dateform        = "Jan 2, 2006"
+  dateformShort   = "Jan 2"
+  dateformNum     = "2006-01-02"
+  dateformNumTime = "2006-01-02 15:04 -0700"
+
+  # Metadata mostly used in document's head
+  description = "Homepage and blog by Djordje Atlialp"
+  keywords = "homepage, blog, science, informatics, development, programming"
+  images = [""]
+
+  # Directory name of your blog content (default is `content/posts`)
+  contentTypeName = "posts"
+  # Default theme "light" or "dark"
+  defaultTheme = "dark"
+
+# Social icons
+
+  [[params.social]]
+    name = "email"
+    url  = "mailto:wuhao29@gmail.com"
+
+  [[params.social]]
+    name = "github"
+    url  = "https://github.com/emmettng"
+
+  [[params.social]]
+    name = "linkedin"
+    url  = "https://www.linkedin.com/in/hao-w-5a11ab58/"
+
+
+[languages]
+  [languages.en]
+    title = "emmett Ng"
+    subtitle = "A simple theme for Hugo"
+    keywords = ""
+    copyright = ""
+    readOtherPosts = "Read other posts"
+
+    [languages.en.params.logo]
+      logoText = "\\a -> "
+      logoHomeLink = "/"
+    # or
+    #
+    # path = "/img/your-example-logo.svg"
+    # alt = "Your example logo alt text"
+
+	# You can create a language based menu
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "Me"
+        url = "/about"
+      [[languages.en.menu.main]]
+        identifier = "category"
+        name = "CategoryTheory"
+        url = "posts/"
+      [[languages.en.menu.main]]
+        identifier = "haskell"
+        name = "Hashekll"
+        url = "haskell/"
+      [[languages.en.menu.main]]
+        identifier = "data"
+        name = "DataScience"
+        url = "datascience/"
+      [[languages.en.menu.main]]
+        identifier = "agi"
+        name = "AGI"
+        url = "agi/"

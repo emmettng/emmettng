@@ -1,0 +1,75 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Posts on emmett Ng</title>
+        <link>/posts/</link>
+        <description>Recent content in Posts on emmett Ng</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 27 Oct 2019 23:57:48 +0800</lastBuildDate>
+        <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+        
+        <item>
+            <title>Test Mathjax</title>
+            <link>/posts/test-mathjax/</link>
+            <pubDate>Sun, 27 Oct 2019 23:57:48 +0800</pubDate>
+            
+            <guid>/posts/test-mathjax/</guid>
+            <description>This is the first $\sqrt{3x-1}+(1+x)^2$
+some line in between
+$$ \left{ \begin{align} \dot{x} &amp;amp; = \sigma(y-x) \newline \dot{y} &amp;amp; = \rho x - y - xz \newline \dot{z} &amp;amp; = -\beta z + xy \end{align} \right. $$</description>
+            <content type="html"><![CDATA[
+
+<h2 id="this-is-the-first">This is the first</h2>
+
+<p>$\sqrt{3x-1}+(1+x)^2$</p>
+
+<p>some line
+in between</p>
+
+<p>$$
+\left{
+\begin{align}
+\dot{x} &amp; = \sigma(y-x) \newline
+\dot{y} &amp; = \rho x - y - xz \newline
+\dot{z} &amp; = -\beta z + xy
+\end{align}
+\right.
+$$</p>
+]]></content>
+        </item>
+        
+        <item>
+            <title>My First Post</title>
+            <link>/posts/my-first-post/</link>
+            <pubDate>Sun, 27 Oct 2019 23:39:12 +0800</pubDate>
+            
+            <guid>/posts/my-first-post/</guid>
+            <description>FUCK FUCK FUCK
+$\sqrt{3x-1}+(1+x)^2$
+$$ \left{ \begin{align} \dot{x} &amp;amp; = \sigma(y-x) \newline \dot{y} &amp;amp; = \rho x - y - xz \newline \dot{z} &amp;amp; = -\beta z + xy \end{align} \right. $$
+code ?  &amp;rdquo;&amp;rsquo; code ? &amp;ldquo;&amp;rsquo;</description>
+            <content type="html"><![CDATA[<p>FUCK FUCK FUCK</p>
+
+<p>$\sqrt{3x-1}+(1+x)^2$</p>
+
+<p>$$
+\left{
+\begin{align}
+\dot{x} &amp; = \sigma(y-x) \newline
+\dot{y} &amp; = \rho x - y - xz \newline
+\dot{z} &amp; = -\beta z + xy
+\end{align}
+\right.
+$$</p>
+
+<pre><code>code ?
+</code></pre>
+
+<p>&rdquo;&rsquo;
+code ?
+&ldquo;&rsquo;</p>
+]]></content>
+        </item>
+        
+    </channel>
+</rss>
