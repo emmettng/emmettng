@@ -69,3 +69,11 @@ draft: true
 ```
 code
 ```
+
+### Others sets
+
+- use system clipboard, copy and paste between different vim windows.
+  
+  ```
+  set clipboard=unnamed
+  ```
