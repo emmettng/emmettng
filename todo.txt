@@ -1,0 +1,2 @@
+1. design pattern:
+complex monad transformer stacks, interpreters over free monads, uniqueness types, effect systems, tagless final, patterns-reader

@@ -65,7 +65,7 @@ disableHugoGeneratorInject = false
     readOtherPosts = "Read other posts"
 
     [languages.en.params.logo]
-      logoText = "\\a -> "
+      logoText = "λa -> "
       logoHomeLink = "/"
     # or
     #
@@ -81,7 +81,7 @@ disableHugoGeneratorInject = false
       [[languages.en.menu.main]]
         identifier = "category"
         name = "Category&Haskell"
-        url = "posts/"
+        url = "haskell/"
       [[languages.en.menu.main]]
         identifier = "blogs"
         name = "Blogs"
