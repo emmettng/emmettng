@@ -1,13 +1,9 @@
 # me 
 
 - I believe the nature prefers `simplicity` over complexity. 
-- I believe the nature prefers `composition` over combination.
-- I believe the nature prefers `flaw` over perfect.
 - I believe the nature has **NO** preference. 
 
-So `limited` information `interact` under `limited constraint` presents us a perfect world with complex combination of all pulzzes.
-
-That's the way it works, not because it is better, it's because that is the only way. The way it works defines what it is.
+So puzzles in this world could be understood rather than be remembered. 
 
 It is hard to avoid being deceived by our perception or daily life experience
 
