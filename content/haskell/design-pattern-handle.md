@@ -1,5 +1,5 @@
 ---
-title: "remind myself: Design Pattern - Handle"
+title: "Design Pattern - Handle"
 date: 2019-10-30T11:37:24+08:00
 draft: true
 ---
