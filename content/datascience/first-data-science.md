@@ -1,12 +1,11 @@
 ---
-title: "Data Science"
+title: "I wish I knew when learning Data Science"
 date: 2019-10-28T12:23:05+08:00
-draft: true
+draft: false
 ---
-> You konw who you are fighting against and you know what you can do.     
+> We know what the problem domain is and we know what we can do.     
 > so...     
 > All hands!    
 > Battlestations!!!
 
-## Making sense
-
+to be continued ...
