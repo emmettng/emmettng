@@ -41,24 +41,24 @@ import Data.Configurator.Types
 
 stringField :: IO String
 stringField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.stringField" :: IO String
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.stringField" :: IO String
                                                                                                                                                    
 intField :: IO Int                                                                                                                              intField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]                                                                    
-  require cfg "DemoOneInfo.intField" :: IO Int
+        cfg <- load [Required "data/configDemoOne.cfg"]                                                                    
+        require cfg "DemoOneInfo.intField" :: IO Int
                                                                                                                  
 floatField :: IO Float                                              
 floatField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.floatField" :: IO Float               
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.floatField" :: IO Float               
                                                   
 
 
 heteListField :: IO [Value]
 heteListField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.heteList" :: IO [Value]
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.heteList" :: IO [Value]
 
 ```
 
@@ -84,18 +84,18 @@ floatField :: IO Float
 ```
 homoIntListField :: IO [Int]                                          
 homoIntListField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.homoListNum" :: IO [Int]
+        fg <- load [Required "data/configDemoOne.cfg"]
+        equire cfg "DemoOneInfo.homoListNum" :: IO [Int]
                                                                  
 homoStringListField :: IO [String]                
 homoStringListField = do                                              
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.homoListString" :: IO [String]
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.homoListString" :: IO [String]
                    
 homoBoolListField :: IO [Bool]
 homoBoolListField = do
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.homoListBool" :: IO [Bool]
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.homoListBool" :: IO [Bool]
 
 ```
 
@@ -126,13 +126,13 @@ homoStringListField :: IO [String]
 ```
 heteValueList :: IO [Value]                                                                                                                                                                      
 heteValueList = do 
-  cfg <- load [Required "data/configDemoOne.cfg"]
-  require cfg "DemoOneInfo.heteList" :: IO [Value]
+        cfg <- load [Required "data/configDemoOne.cfg"]
+        require cfg "DemoOneInfo.heteList" :: IO [Value]
  
 heteListField :: IO Value 
 heteListField = do                 
-  cfg <- load [Required "data/configDemoOne.cfg"]         
-  require cfg "DemoOneInfo.heteList" :: IO Value 
+        cfg <- load [Required "data/configDemoOne.cfg"]         
+        require cfg "DemoOneInfo.heteList" :: IO Value 
 
 ```
 
@@ -168,7 +168,8 @@ nestDemo :: IO String
 6. Import other config files     
 demo file `data/configDemoThree.cfg`
 ```
-DemoThreeInfo                                                               {                                                                                                                                                                                   
+DemoThreeInfo
+ {         
         stringField = "This is Demo 3"                                                                                                             
         numberField = 3                                                                                                           
         floatField = 3.3                                                                                                           
@@ -195,6 +196,7 @@ Prelude Packages.Configurator> :info importDemo
 importDemo :: IO String
 ```
 >**Note**   
+>
 > - `configDemoThree.cfg` is in the same directory with `configDemoOne.cfg` an `configDemo2.cfg`. So just import the file name is ok!
 > - The domain name of imported config are all being nested in the domain name `DemoThreeInfo`.
 
@@ -227,17 +229,17 @@ data DemoFour = DemoFour
 instance Configured DemoFour where                               
   convert :: Value -> Maybe DemoFour              
   convert (List [sV, nV, bV, fV]) = do                                
-    s <- convert sV :: Maybe String              
-    n <- convert nV :: Maybe Int                  
-    b <- convert bV :: Maybe Bool 
-    f <- convert fV :: Maybe Float                               
-    return $ DemoFour s n b f                     
+        s <- convert sV :: Maybe String              
+        n <- convert nV :: Maybe Int                  
+        b <- convert bV :: Maybe Bool 
+        f <- convert fV :: Maybe Float                               
+        return $ DemoFour s n b f                     
   convert _ = Nothing                                                 
                                                    
 customizeDemo :: IO DemoFour                           
 customizeDemo = do                                       
-  cfg <- load [Required "data/configDemoCustomize.cfg"]
-  require cfg "DemoCustomizeInfo.custDemo" :: IO DemoFour
+        cfg <- load [Required "data/configDemoCustomize.cfg"]
+        require cfg "DemoCustomizeInfo.custDemo" :: IO DemoFour
 
 ```
     Output:
