@@ -154,8 +154,8 @@ heteListField :: IO Value
 ```
 nestDemo :: IO String
 nestDemo = do
-  cfg <- load [Required "data/configDemo2.cfg"]
-  require cfg "Demo2Info.demo2_nest.nest-name" :: IO String
+        cfg <- load [Required "data/configDemo2.cfg"]
+        require cfg "Demo2Info.demo2_nest.nest-name" :: IO String
 ```
     Output:
 ```
