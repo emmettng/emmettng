@@ -1,7 +1,11 @@
 ---
 title: "Package: Configurator"
 date: 2019-11-06T17:32:49+08:00
+<<<<<<< HEAD
 draft: flase
+=======
+draft: false
+>>>>>>> github/master
 ---
 
 ## Minimum usable: configurator

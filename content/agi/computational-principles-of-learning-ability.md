@@ -1,7 +1,7 @@
 ---
 title: "Computational Principles of Learning Ability"
 date: 2019-10-28T12:29:44+08:00
-draft: true
+draft: false
 ---
 
 > Define the world so we know what the problem could be.
@@ -11,10 +11,9 @@ draft: true
 A general-purpose universal optimization strategy is theoretically impossible,
 and the only way one strategy can outperform another is if it is specialized to the objective function
 ```
-In our daily life, there are many intuitive examples which reflect the notion of
-NFL theorem. 
+In our daily life, there are many intuitive examples which reflect the notion of NFL theorem. 
 
-Normall
+Normally
 
 - we use coffee grinder to make coffee not juice extractor,
 - we would like to wear soccer shoes while playing football not slippers.
@@ -42,7 +41,7 @@ every specific strategy under exceptional circumstances.
 **SO** 
 Does the existence of **us** disproved the NFL-theorem?
 
-**Maybe** 
+**Assume** 
 
 - There is an universal optimization strategy Z. 
 - There is not any specific ”objective function” exists
@@ -50,7 +49,7 @@ before Z is being implemented.
 
 **Maybe**
 
-**We** are this optimization strategy Z, so **we** could define the existence of all objective functions, and **we** could draw the conclusion of NFL-theorem.
+**We** are this optimization strategy Z, so **we** could define the existence of all objective functions, so **we** could draw the conclusion of NFL-theorem.
 
-## Information
+## Information 
 To be continued ...

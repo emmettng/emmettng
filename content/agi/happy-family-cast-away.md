@@ -7,3 +7,5 @@ draft: true
 > it all about making sense of the natural scenes.
 
 Richard and Fiona
+
+truth is one of many possiblities.
