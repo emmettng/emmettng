@@ -1,7 +1,7 @@
 ---
 title: "Package: Configurator"
 date: 2019-11-06T17:32:49+08:00
-draft: true
+draft: flase
 ---
 
 ## Minimum usable: configurator
@@ -19,7 +19,7 @@ draft: true
 
 ### Notes
 
-1. Config file `DemoOneInfo.cfg` in dirction `data`
+1. Config file `DemoOneInfo.cfg` in dirction `data` . `data` is in the same level of `src`.
 ```
 DemoOneInfo                                                               
 {                                                                        
@@ -37,7 +37,7 @@ DemoOneInfo
 {-# LANGUAGE OverloadedStrings #-}
           
 import Data.Configurator
-import Data.Configurator.Types
+import Data.Configurator.Types          ## Value type 
 
 stringField :: IO String
 stringField = do
