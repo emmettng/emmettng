@@ -19,8 +19,9 @@ draft: false
 ### Notes 
 Both packages can be used the same ways
 1. GHC extension 
+   
     >  {-# LANGUAGE DeriveGeneric #-}            
-    > {-# LANGUAGE DefaultSignatures #-}                                     
+    >  {-# LANGUAGE DefaultSignatures #-}                                     
 2. Import corresponding libraries:
    
    `sore` package 
