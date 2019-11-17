@@ -1,26 +1,13 @@
 ---
-title: "No Free Fables: Data Scientists Room" 
+title: "No Free Fables: Series Killer's Rooms" 
 date: 2019-11-14T10:34:56+08:00
 draft: true
 ---
 
-There is a room 
-each expert 10 times more monkeys.
-goal for layman is to lock monkeys inside and free all experts.
+There was an series killer who would kidnap people with different expertise and locked them up in one of 100 rooms. Meanwhile there are 99 monkeys each being locked in one of the other 99 rooms. 
 
-based on the output to tell in 10 seconds. 
+Whenever this series killer encountered a problem of a specific domain. He would forward this task to the kidnapped expert and the other 99 monkeys. He decided that if he could tell the differences between the work of his hostage and the works of these monkeys. He will release the expert. Otherwise, he would follow his own bloody hobby. 
 
-The task is simply to tell a specialist from a monkey.
-Take whatever input given by people outside and produce desire output 
+Unfortunetly, after so many years, the serise killer has to keep supressing his darkness desire. Because all these hostages could produce distingushable (from monkey) work at easy.
 
-John Searle in December 2005
-Searle's thought experiment begins with this hypothetical premise: suppose that artificial intelligence research has succeeded in constructing a computer that behaves as if it understands Chinese. It takes Chinese characters as input and, by following the instructions of a computer program, produces other Chinese characters, which it presents as output. Suppose, says Searle, that this computer performs its task so convincingly that it comfortably passes the Turing test: it convinces a human Chinese speaker that the program is itself a live Chinese speaker. To all of the questions that the person asks, it makes appropriate responses, such that any Chinese speaker would be convinced that they are talking to another Chinese-speaking human being.
-
-The question Searle wants to answer is this: does the machine literally "understand" Chinese? Or is it merely simulating the ability to understand Chinese?[6][c] Searle calls the first position "strong AI" and the latter "weak AI".[d]
-
-- If the input is a compute and desire output is a web page. People outside the room could tell forntend programmer from monkey immediately.
-- If the input is all necessary components and desire output is an engine. People outside the room could tell engineer from monkey immediately.
-- If the input is a data analysis problem and a calulator
-- Give a monkey a computer, other human could tell it cannot design a web page, immediately.
-- Give a monkey necessary components, other human could tell it cannot essemble an engine, immediately.
-- Give a monkey a calculator, it can always somehow give a number, immediately. But it would take a while for other human to realise 
+Finally, he got his lucky day. He need a solution from a data scientist. And all his could provide to the data scientist and monkeys are the task and calculators.

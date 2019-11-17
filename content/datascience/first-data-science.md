@@ -9,3 +9,17 @@ draft: false
 > Battlestations!!!
 
 to be continued ...
+
+out of domain prediction is a illusion brought by low dimensional problem. 
+
+many point from why machine learning works
+and 
+how manchine learning works : VC dimension 
+
+from the start point of 
+
+when is  machine learning the  necessary solution 
+of be part of the necessary solution.
+
+Intuitive explaination 
+
