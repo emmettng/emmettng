@@ -249,6 +249,7 @@ withReaderT f m = ReaderT $ runReaderT m . f
 ### 4.Example Four 
 ```
 asks :: (Monad m) => (r - a) -> ReaderT r m a 
+asks f = ReaderT (return . f)
 ```
 - Intuition:
     - convert an simple function into ReaderT. 
@@ -280,3 +281,10 @@ This example is: `t1 + t2 + t3 + tc1 + td1`
 ```
 1+10 + 10/2 +  10*3 + 110 * 5 + (10+1000)= 1606
 ```
+***Notes***
+
+- Given a function of type ` :: r -> a`, we could use `asks` to convert it monad `ReaderT r m a`. However, it is not certainly applicable the other way around.     
+It could be impossible to factorize a function of type `ReaderT r m a` as combinations of `asks` and ` f `. 
+    - The implementation of `asks` is `asks f = ReaderT (return . f)`
+    - In original `ReaderT r m a`. If `m` is `Either` or `IO`, there will be no `return` function which could produce information as in the original `ReaderT`. 
+    - In this case, `m` usually related to more than one Type and each Type contains more than one possible value. 
