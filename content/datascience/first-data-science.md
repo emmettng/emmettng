@@ -23,3 +23,9 @@ of be part of the necessary solution.
 
 Intuitive explaination 
 
+
+it is like you could tell a person who is coloure blindness what is yellow
+but you woudln't except he show everything that is yellow
+
+learn some rule to identifi yellow
+    real world--> to many entropy

@@ -11,3 +11,5 @@ draft: true
 - [stackoverflow 1](https://stackoverflow.com/questions/32828483/how-do-you-allow-gadts-in-haskell)
 - [haskell tutorial](https://www.haskell.org/tutorial/classes.html)
 - [wiki haskell example](https://wiki.haskell.org/Data_declaration_with_constraint)
+- [instance constraint](https://chrisdone.com/posts/haskell-constraint-trick/)
+- [reddit](https://www.reddit.com/r/haskell/comments/61qm78/understanding_instance_resolution_and_constraints/)

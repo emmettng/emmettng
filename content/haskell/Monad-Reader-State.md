@@ -13,11 +13,10 @@ draft: true
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
 
 ## summary 
-> Start from Examples below for quick recap.
 
 **terms** 
 
-- function chain:        
+- function chain (composition):        
   A sequence of functions that compose.    
   - `A :: a -> b`
   - `B:: b -> c`
@@ -29,12 +28,13 @@ draft: true
   
 **intuitation recap**
 
-   - pass enviroment information `env` through all components of a function chain. 
+   - pass environment information `env` through all components of a function chain. 
+   - every functions in this function chain use this `env`.
    - Common usage include:  
   
         > ask  :: introducing `env` into function chain.    
         > local :: temporarily change `env` value or type.     
-        > asks :: swiftly turn a function of type `env -> result` into this moand.    
+        > asks :: swiftly turn a function of type `env -> result` into this monad.    
         > runreaderT :: Get the functions (chain of operations), so it can be evaluated by feeding in a `env`.  
 
 ## Examples 
@@ -288,3 +288,57 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
     - The implementation of `asks` is `asks f = ReaderT (return . f)`
     - In original `ReaderT r m a`. If `m` is `Either` or `IO`, there will be no `return` function which could produce information as in the original `ReaderT`. 
     - In this case, `m` usually related to more than one Type and each Type contains more than one possible value. 
+
+
+## Complex Example : Staging    
+
+#### Business logic requirements:
+
+1. Function chain includes functions: 
+   - `f1 :: a -> b `
+   - `f2 :: b -> c `
+   - `f3 :: c -> d `
+   - `f4 :: d -> e `
+   - `f5 :: e -> f `
+  
+    `chainF :: a -> f `     
+    `chainF = f5 . f4 . f3 . f2 . f1`
+
+2. Functions `f1` to `depends on `Config` information. So :
+   - `f1 :: a -> e -> b `
+   - `f2 :: b -> e -> c `
+   - `f3 :: c -> e -> d `
+   - `f4 :: d -> e -> e `
+   - `f5 :: e -> e -> f `
+  
+    `chainF :: e -> a -> f `     
+
+    We could rewrite `f1` to `f5` as:
+   - `f1 :: a -> Reader e b` 
+   - `f2 :: b -> Reader e c `
+   - `f3 :: c -> Reader e d `
+   - `f4 :: d -> Reader e e `
+   - `f5 :: e -> Reader e f `
+
+    `chainF :: a -> Reader e f `     
+
+    ``` 
+    chainF a = do 
+        e <- ask 
+        b <- f1 a 
+        c <- f1 b 
+        d <- f1 c 
+        e <- f1 d 
+        f <- f1 e 
+        return f
+    ```
+    or  
+
+    ` chainF = f1 >=> f2 >=> f3 >=> f4 >=> f5 `
+
+3. The computation could be very time consuming and I would like to use save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
+4. 
+#### ReaderT implementations:
+
+1. StageCore function relies on `env` information 
+    - `type StageCore a :: ReaderT env IO a`

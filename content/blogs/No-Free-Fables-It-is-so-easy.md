@@ -8,6 +8,6 @@ There was a serial killer who kidnap people with different expertise and locked 
 
 Whenever this series killer encountered a problem of a specific domain. He would forward this task to a kidnapped expert and the other 99 monkeys. He decided that if he could tell the differences between works of the hostage and all these monkeys. He will release the expert. Otherwise, he would follow his own bloody hobby. 
 
-Unfortunately, after so many years, the serial killer has to keep supressing his darkness desire. Because all these hostages could produce distingushable (from monkey) work at easy.
+Unfortunately, after so many years, the serial killer has to keep suppressing his darkness desire. Because all these hostages could produce distinguishable (from monkey) work at easy.
 
 Finally, he got his lucky day. He need a solution from a data scientist. And all his could provide to the data scientist and monkeys are the task and calculators.
