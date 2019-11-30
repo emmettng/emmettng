@@ -1,5 +1,5 @@
 ---
-title: "Why I use Haskell"
+title: "Why Haskell"
 date: 2019-11-03T19:38:50+08:00
 draft: false
 ---
