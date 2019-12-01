@@ -1,5 +1,5 @@
 ---
-title: "Monad: Reader & State"
+title: "Monad: Reader"
 date: 2019-11-18T00:18:29+08:00
 draft: true
 ---
@@ -19,9 +19,9 @@ draft: true
 - function chain (composition):        
   A sequence of functions that compose.    
   - `A :: a -> b`
-  - `B:: b -> c`
+  - `B :: b -> c`
   - `C :: c -> d`
-  - `D:: d-> e`
+  - `D :: d-> e`
 
     A chain of functions above:         
     ` D . C . B . A :: a -> e`

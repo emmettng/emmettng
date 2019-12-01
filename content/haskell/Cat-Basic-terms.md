@@ -8,6 +8,7 @@ draft: true
 - [wiki haskell](https://wiki.haskell.org/Lambda_abstraction)
 - [stackexchange](https://math.stackexchange.com/questions/65622/whats-the-point-of-eta-conversion-in-lambda-calculus)
 
+### Basic terms 
 - `alpha conversion`     
   function variables renaming
   

@@ -34,7 +34,7 @@ In every using case of all specific strategies, there is an inevitable component
   
 The best way to guarantee the well functioning of a system is to integrate **HUMAN** with the task specific solution. 
 
-**We** are the inevitable core part and ultimate information source which support
+**We** are the inevitable core and ultimate information source which support
 every specific strategy under exceptional circumstances.
 **We** are the general purpose universal optimization strategy.
 

@@ -1,8 +1,10 @@
 ---
 title: "Haskell Neovim Hie Config"
 date: 2019-10-28T18:24:53+08:00
-draft: true
+draft: false 
 ---
+
+> May God bless this config 
 
 ## neovim 
 - nodejs   
