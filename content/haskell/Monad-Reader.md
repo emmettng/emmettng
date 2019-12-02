@@ -13,6 +13,58 @@ draft: true
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
 
 ## summary 
+```
+type ReaderT r m a = ReaderT { runReaderT :: r -> m a }
+
+- Function 'ask' introduce the 'env' informatoin into the Reader Monad
+- 'local' (withReaderT) alter the 'env' information temporarily.
+- 'asks' convert a function from 'env' to other type to a Reader Monad.
+- Usually, one 'ask' will related to one Reader Monad that represent a function depends on 'env' information.
+- Because there could be several function depends on same 'env'. They can be composed by >>= or >=>.
+```
+
+```
+ask :: (Monad m) => ReaderT r m r
+ask = ReaderT return
+```
+
+```
+return :: r -> m r
+```
+```
+local
+local
+    :: (r -> r)         -- ^ The function to modify the environment.
+    -> ReaderT r m a    -- ^ Computation to run in the modified environment.
+    -> ReaderT r m a
+local = withReaderT
+```
+
+```
+withReaderT
+    :: (r' -> r)        -- ^ The function to modify the environment.
+    -> ReaderT r m a    -- ^ Computation to run in the modified environment.
+    -> ReaderT r' m a
+withReaderT f m = ReaderT $ runReaderT m . f
+```
+
+```
+asks
+asks :: (Monad m)
+    => (r -> a)         -- ^ The selector function to apply to the environment.
+    -> ReaderT r m a
+asks f = ReaderT (return . f)
+{-# INLINE asks #-}
+```
+
+#### Common usage
+1. use `ask` to introduce the `env` into computation. (almost compulsory, asks is rarely being used)
+2. so we could construct functions of type `a -> Reader r b` or `Reader r b`. (compulsory)
+3. `local` or `withReaderT` alter enviroment (optional)runreaderT ==> bring out , follow by an Env. (optional)
+4. `runReader` or `runreaderT` to unwrap functions. (compulsory)
+5. Feed the `env` information (compulsory)
+| Intuition:
+Pass Env/Context/Configuration information through a chain of operations that share the same information.
 
 **terms** 
 

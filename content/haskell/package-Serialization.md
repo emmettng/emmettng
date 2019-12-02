@@ -80,5 +80,6 @@ Both packages can be used the same ways
           return $ decodeLazy bs
    ``` 
 6. The file produced by `store` is about `1/3` bigger than file produced by `cereal`. 
-7. Performance test:
+7. `store` handles parametric data type more smoothly. 
+8. Performance test:
     **TODO**
