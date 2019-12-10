@@ -3,29 +3,34 @@ title: "Monad: Reader"
 date: 2019-11-18T00:18:29+08:00
 draft: true
 ---
-> This document follows the minimum useable principle.
+> This summary follows the minimum useable principle.
 
 # Reader
 
-#### online resources
-
-- This one 
+#### Path 
+- [Learn you a haskell](http://learnyouahaskell.com/for-a-few-monads-more)
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
+- This one 
 
 ## summary 
+
+Several functions depend on the same `env` information. In other words, they are all `reader` with respect to this `env`. Many `Reader`s composed together by `>>=` or `>=>` to pass `env` information through the chain of computation.
+
 ```
 type ReaderT r m a = ReaderT { runReaderT :: r -> m a }
-
-- Function 'ask' introduce the 'env' informatoin into the Reader Monad
-- 'local' (withReaderT) alter the 'env' information temporarily.
-- 'asks' convert a function from 'env' to other type to a Reader Monad.
-- Usually, one 'ask' will related to one Reader Monad that represent a function depends on 'env' information.
-- Because there could be several function depends on same 'env'. They can be composed by >>= or >=>.
 ```
+
+- Function `ask` introduce the `env` information into the Reader Monad
+- `local` (withReaderT) alter the `env` information temporarily.
+- `asks` convert a function from `env` to other type to a Reader Monad.
+- Usually, one `ask` will related to one Reader Monad that represent a function depends on `env` information.
+
 
 ```
 ask :: (Monad m) => ReaderT r m r
 ask = ReaderT return
+
+return :: r -> m r
 ```
 
 ```
@@ -59,11 +64,12 @@ asks f = ReaderT (return . f)
 
 #### Common usage
 1. use `ask` to introduce the `env` into computation. (almost compulsory, asks is rarely being used)
-2. so we could construct functions of type `a -> Reader r b` or `Reader r b`. (compulsory)
-3. `local` or `withReaderT` alter enviroment (optional)runreaderT ==> bring out , follow by an Env. (optional)
+2. so we could construct functions of type `a -> Reader r b` or just `Reader r b`. (compulsory)
+3. `local` or `withReaderT` alter environment (optional)runreaderT ==> bring out , follow by an Env. (optional)
 4. `runReader` or `runreaderT` to unwrap functions. (compulsory)
 5. Feed the `env` information (compulsory)
-| Intuition:
+   
+#### Intuition:
 Pass Env/Context/Configuration information through a chain of operations that share the same information.
 
 **terms** 
@@ -99,6 +105,10 @@ import           GHC.Float
 -- Example Two imports
 import           Control.Monad.IO.Class
 import           Control.Monad    -- for the use of kleisli arrow ( >=> )
+
+-- Staging Example imports
+import           GHC.Float
+import           Data.Store
 ```
 
 
@@ -106,7 +116,8 @@ import           Control.Monad    -- for the use of kleisli arrow ( >=> )
 
 - A chain of Core functions.
 - Intuition:
-    - a Core input -> a chain of functions which inputs and outputs aligned and represented by a Reader Monad.
+    - `an initial input -> a chain of functions`     
+       which inputs and outputs aligned and represented by a Reader Monad.
     - Every operation in this function chain shares the same `env` informatoin.
         - CoreInputType -> Reader Env ChainOutputType 
         - The `env` being passed down through the core operation chain.
@@ -150,13 +161,6 @@ import           Control.Monad    -- for the use of kleisli arrow ( >=> )
     chainA' :: Int -> Reader Int Double
     chainA' = a1 >=> a2 >=> a3
     ```
-***ask***
-```
-ask :: (Monad m) => ReaderT r m r
-ask = ReaderT return 
-
-return :: r -> m r
-```
 
 ***example output***
 ```
@@ -164,20 +168,20 @@ return :: r -> m r
 > runReader p1 $ 2
 > 0.3333333432674408
 ```
-In this example `env` is 2 and `n`(core input) is 10 so :
+In this example `env` is 2 and `n` (the initial input) is 10 so :
 ```
 t1 = 10 + 2 , t2 = 2 / 12,  t3 = 2*2 / 12  =  0.33333333
 ```
 ### 2.Example Two
-- Functions depend only on Env information.
+- A chian of functions depend only on `Env` information.
 - Intuition :
-    - Sequence opeartion depends only on Enviroment. 
+    - Sequence operation depends only on Environment. 
 
 
 ```
 b1 :: (MonadIO m) => ReaderT String m Int
 b1 = do
-    env <- ask           -- get Enviroment information
+    env <- ask           -- get Environment information
     n   <- liftIO getLine
     let n1 = read env
         n2 = read n
@@ -186,7 +190,7 @@ b1 = do
 ```
 b2 :: (MonadIO m) => ReaderT String m Float
 b2 = do
-    env <- ask          -- get Enviroment information
+    env <- ask          -- get Environment information
     n   <- liftIO getLine
     let n1 = read env
         n2 = read n
@@ -346,7 +350,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
 
 #### Business logic requirements:
 
-1. Function chain includes functions: 
+1. Core functions: 
    - `f1 :: a -> b `
    - `f2 :: b -> c `
    - `f3 :: c -> d `
@@ -356,7 +360,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
     `chainF :: a -> f `     
     `chainF = f5 . f4 . f3 . f2 . f1`
 
-2. Functions `f1` to `depends on `Config` information. So :
+2. Core Functions depends on `Config` information. So :
    - `f1 :: a -> e -> b `
    - `f2 :: b -> e -> c `
    - `f3 :: c -> e -> d `
@@ -388,9 +392,120 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
 
     ` chainF = f1 >=> f2 >=> f3 >=> f4 >=> f5 `
 
-3. The computation could be very time consuming and I would like to use save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
-4. 
-#### ReaderT implementations:
+3. The computation of each **core** function could be very complex and time consuming, so I would like to save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
+ 
+#### 4. ReaderT implementations:
 
-1. StageCore function relies on `env` information 
-    - `type StageCore a :: ReaderT env IO a`
+
+
+1. The `Env` contains information for a chain of computations, functions for serialization and deserialization. This `Env` could be initialized from `Conifg` information.
+```
+type Serializer = forall a. (Store a) =>
+                            a -> FilePath -> IO ()
+
+type Deserializer = forall a. (Store a) =>
+                              FilePath -> IO a
+
+data Env = Env
+  { sf1Env :: String
+  , sf2Env :: Int
+  , sf3Env :: Float
+  , sf4Env :: Double
+  , sf5Env :: Int
+  , serializer :: Serializer
+  , deserializer :: Deserializer
+  }
+```
+
+2. StageCore function relies on `env` information 
+    - `type StageCore a = ReaderT Env IO a`
+
+3. Functions that fully or partially depends on `env` information.
+```
+-- sf1
+--   :: (Monad m)
+--   => ReaderT Env m Int
+sf1 :: StageCore Int
+sf1 = do
+  env <- ask
+  return $ length . sf1Env $ env
+```
+```
+sf2 :: Int -> StageCore Float
+sf2 arg2 = do
+  env <- ask
+  return $ fromIntegral $ sf2Env env + arg2
+```
+```
+sf3 :: Float -> StageCore Double
+sf3 arg3 = do
+  env <- ask
+  return $ float2Double $ sf3Env env + arg3
+```
+```
+sf4 :: Double -> StageCore String
+sf4 arg4 = do
+  env <- ask
+  return $ show $ sf4Env env + arg4
+```
+```
+sf5 :: StageCore Int
+sf5 = do
+  env <- ask
+  return $ 100 + sf5Env env
+```
+
+```
+coreChain :: () -> ReaderT Env IO Int
+coreChain = (\_ -> sf1) >=> sf2 >=> sf3 >=> sf4 >=> (\_ -> sf5)
+```
+
+4. Now we would like to:
+    1. Serialize the core output of each core functions above on the disk.
+    2. If relative env information changes, we performe the calculation.
+    3. If previous calculation is new, we performe this calculation.
+    4. otherwise, we deserialize what we saved on the disk.
+
+5. we need to name each stage 
+`type StageName = String`
+
+6. information need for core function `a -> b` now need to embellished with a `Boolean` type to indicate the serialization status.    
+`type Core a = (a, Bool)`
+
+7. We use Data.Store to serialize output of each core function    
+   StageName and Env defines this boolen value 
+```
+checkSerialization :: StageName -> StageCore (Core FilePath)
+checkSerialization = undefined
+```
+
+8. This would be make more sense, 
+    1. we take a core-function `( a -> StageCore b) `
+    2. and a `StageName`
+    3. embellish original core-function output with a Bool information `(a, Bool) -> StageCore (b,Bool) == Core a -> StageCore (Core b))`
+    4. this bool information is being used for helping following operation to decide whether to do serialization.
+```
+staging
+  :: (Store b)
+  => StageName -> (a -> StageCore b) -> Core a -> StageCore (Core b)
+staging stageName coreFunc (coreInput, preStatus) = do
+  env <- ask
+  let savetoDisk = serializer env
+      readDisk = deserializer env
+  (serializationPath, done) <- checkSerialization stageName
+  if done && preStatus
+    then do
+      ds <- liftIO $ readDisk serializationPath
+      return (ds, True)
+    else do
+      coreOutput <- coreFunc coreInput
+      liftIO $ savetoDisk coreOutput serializationPath
+      return (coreOutput, False)
+```
+9. We could use this `Staging` monad like this:
+```
+stageChain =
+  (staging "sf1" (\_ -> sf1)) >=>
+  (staging "sf2" sf2) >=>
+  (staging "sf3" sf3) >=> (staging "sf4" sf4) >=> (staging "sf5" (\_ -> sf5))
+```
