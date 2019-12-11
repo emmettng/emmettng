@@ -346,7 +346,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
     - In this case, `m` usually related to more than one Type and each Type contains more than one possible value. 
 
 
-### 5. Complex Example : Staging    
+### 5.Complex Example : Staging    
 
 #### Business logic requirements:
 
@@ -514,3 +514,153 @@ stageChain =
   staging "stageFunction_4" sf4 >=> 
   staging "stageFunction_5" (\_ -> sf5)
 ```
+
+
+### 6. ReaderT Design Pattern 
+> - The famous 23 [design pattern](https://en.wikipedia.org/wiki/Design_Patterns) is almost perfect except for the suspicious number **`23`**.
+> - This number **`23`** is not as convincing as the number **`42`**.
+> - With highly abstracted expression ability, the design patterns of Haskell iImplementation would be more like a personal preference or a hobby rather than some task specific best practices.
+
+#### Path 
+- [Monad Reader](../monad-reader)
+- [fp complete: ReaderT](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern) (compulsory)
+
+
+#### Example 
+- The above `Complex example` is the main body of ReaderT design pattern.
+- Initialize `Env` using [configurator](../package-configurator).
+- However each computation in the computation chain only relies on part of `Env`. Let's fix this by using `Has` ad hoc polymorphism.
+```
+data Env = Env
+  { sf1Env :: String                --being used by sf1 only
+  , sf2Env :: Int                   --being used by sf2 only
+  , sf3Env :: Float                 --being used by sf3 only
+  , sf4Env :: Double                --being used by sf4 only
+  , sf5Env :: Int                   --being used by sf5 only
+  , serializer :: Serializer
+  , deserializer :: Deserializer
+  }
+```
+
+***1. Define type class***
+```
+--TypeClass for retrieving sf1Env from Env
+class HasEnv1 a  where
+  getSF1env :: a -> String
+
+instance HasEnv1 String where
+  getSF1env = id
+
+instance HasEnv1 Env where
+  getSF1env = sf1Env
+
+```
+```
+-- TypeClass for retrieving sf2Env from Env
+class HasEnv2 a  where
+  getSF2env :: a -> Int
+
+instance HasEnv2 Int where
+  getSF2env = id
+
+instance HasEnv2 Env where
+  getSF2env = sf2Env
+
+```
+```
+-- TypeClass for retrieving sf3Env from Env
+class HasEnv3 a  where
+  getSF3env :: a -> Float
+
+instance HasEnv3 Float where
+  getSF3env = id
+
+instance HasEnv3 Env where
+  getSF3env = sf3Env
+```
+```
+
+-- TypeClass for retrieving sf4Env from Env
+class HasEnv4 a  where
+  getSF4env :: a -> Double
+
+instance HasEnv4 Double where
+  getSF4env = id
+
+instance HasEnv4 Env where
+  getSF4env = sf4Env
+```
+```
+-- TypeClass for retrieving sf5Env from Env
+class HasEnv5 a  where        
+  getSF5env :: a -> Int        
+
+instance HasEnv5 Int where        
+  getSF5env = id        
+
+instance HasEnv5 Env where        
+  getSF5env = sf5Env        
+```
+Two instances were declared, with the help of the first function `getEnv = id`, we could test function depends on this typeclass easily (defined as follow). 
+
+***2.define corresponding functions***
+```
+-- | Then function sf1 to sf5 could rewrite as follow        
+
+
+type NewStage r a = ReaderT r IO a        
+
+sf1N        
+  :: (HasEnv1 r)        
+  => NewStage r Int        
+sf1N = do        
+  env <- ask        
+  return $length . getSF1env $ env        
+
+sf2N        
+  :: (HasEnv2 r)
+  => Int -> NewStage r Float
+sf2N arg2 = do
+  env <- ask
+  return $ fromIntegral $ getSF2env env + arg2
+
+sf3N
+  :: (HasEnv3 r)
+  => Float -> NewStage r Double
+sf3N arg3 = do
+  env <- ask
+  return $ float2Double $ getSF3env env + arg3
+
+sf4N
+  :: (HasEnv4 r)
+  => Double -> NewStage r String
+sf4N arg4 = do
+  env <- ask
+  return $ show $ getSF4env env + arg4
+sf5N
+  :: (HasEnv5 r)
+  => NewStage r Int
+sf5N = do
+  env <- ask
+  return $ 100 + getSF5env env
+```
+In this case:        
+1. function associate with meaningful type signatures        
+2. It can be test very easily.        
+3. The type of the core computation could stay the same as before, but we updated the participant component with more flexibility.
+
+***3. new core computation chain***
+
+Type signature stays the same as before
+```
+NewStage Env Int = StageCore Int = ReaderT Env IO Int
+```
+```
+newCoreChain :: () -> NewStage Env Int
+newCoreChain = (\_ -> sf1N) >=> sf2N >=> sf3N >=> sf4N >=> (\_ -> sf5N)
+-- newCoreChain = (\_ -> sf1) >=> sf2 >=> sf3 >=> sf4 >=> (\_ -> sf5)
+```
+
+***4. Refactor using Lens*** 
+
+TODO

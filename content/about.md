@@ -9,7 +9,7 @@ It is hard to avoid being deceived by our perception or daily life experience
 
 It is easy to feel content with the role we play and the achievement we have gained.
 
-If we due to be governed by certain natural laws, or behave under some universal constraints, I really would like to know what they are. 
+If we due to be governed by certain natural patterns, or behave under some universal constraints, I really would like to know what they are. 
 
 
 #### Professionally: 
