@@ -346,7 +346,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
     - In this case, `m` usually related to more than one Type and each Type contains more than one possible value. 
 
 
-## Complex Example : Staging    
+### 5. Complex Example : Staging    
 
 #### Business logic requirements:
 
@@ -392,9 +392,9 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
 
     ` chainF = f1 >=> f2 >=> f3 >=> f4 >=> f5 `
 
-3. The computation of each **core** function could be very complex and time consuming, so I would like to save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
+3. The computation of each **core** function could be very complicated and time consuming, so I would like to save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
  
-#### 4. ReaderT implementations:
+***4. ReaderT implementations:***
 
 
 
@@ -461,9 +461,9 @@ coreChain = (\_ -> sf1) >=> sf2 >=> sf3 >=> sf4 >=> (\_ -> sf5)
 ```
 
 4. Now we would like to:
-    1. Serialize the core output of each core functions above on the disk.
-    2. If relative env information changes, we performe the calculation.
-    3. If previous calculation is new, we performe this calculation.
+    1. Serialize the core output of each core functions to the disk.
+    2. If relative env information is new , we do the calculation.
+    3. If previous calculation is new, we do this calculation.
     4. otherwise, we deserialize what we saved on the disk.
 
 5. we need to name each stage 
@@ -479,11 +479,14 @@ checkSerialization :: StageName -> StageCore (Core FilePath)
 checkSerialization = undefined
 ```
 
-8. This would be make more sense, 
-    1. we take a core-function `( a -> StageCore b) `
-    2. and a `StageName`
-    3. embellish original core-function output with a Bool information `(a, Bool) -> StageCore (b,Bool) == Core a -> StageCore (Core b))`
-    4. this bool information is being used for helping following operation to decide whether to do serialization.
+8. Function `staging` take:
+    1. a `StageName` to identify this computation.
+    2. a core function of type ` a -> StageCore b `.
+    3. produce a new function ` Core a -> StageCore (Core b)   
+This would be make more sense, 
+    - embellish original core-function output with the Bool information `(a, Bool) -> StageCore (b,Bool) == Core a -> StageCore (Core b)`
+    - this bool information is being used for helping following operation to decide whether to do the computation or just desrialize from dist.
+    - a `StageName` being used to identify stage and influence the Boolean information.
 ```
 staging
   :: (Store b)
@@ -502,10 +505,12 @@ staging stageName coreFunc (coreInput, preStatus) = do
       liftIO $ savetoDisk coreOutput serializationPath
       return (coreOutput, False)
 ```
-9. We could use this `Staging` monad like this:
+9. Finally, `Staging` could be used like this:
 ```
 stageChain =
-  (staging "sf1" (\_ -> sf1)) >=>
-  (staging "sf2" sf2) >=>
-  (staging "sf3" sf3) >=> (staging "sf4" sf4) >=> (staging "sf5" (\_ -> sf5))
+  staging "stageFunction_1" (\_ -> sf1) >=>
+  staging "stageFunction_2" sf2 >=>
+  staging "stageFunction_3" sf3 >=> 
+  staging "stageFunction_4" sf4 >=> 
+  staging "stageFunction_5" (\_ -> sf5)
 ```
