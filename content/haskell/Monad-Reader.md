@@ -1,7 +1,7 @@
 ---
 title: "Monad: Reader"
 date: 2019-11-18T00:18:29+08:00
-draft: true
+draft: false 
 ---
 > This summary follows the minimum useable principle.
 
@@ -12,9 +12,9 @@ draft: true
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
 - This one 
 
-## summary 
+### Monadic Scenario
 
-Several functions depend on the same `env` information. In other words, they are all `reader` with respect to this `env`. Many `Reader`s composed together by `>>=` or `>=>` to pass `env` information through the chain of computation.
+Several functions depend on the same `env` information. In other words, they are all readers of the same environment information. Many `Reader`s composed together by `>>=` or `>=>` to be a functional unit. The `env` information is being passed implicitly through the chain of computation.
 
 ```
 type ReaderT r m a = ReaderT { runReaderT :: r -> m a }
@@ -33,9 +33,6 @@ ask = ReaderT return
 return :: r -> m r
 ```
 
-```
-return :: r -> m r
-```
 ```
 local
 local
@@ -65,12 +62,12 @@ asks f = ReaderT (return . f)
 #### Common usage
 1. use `ask` to introduce the `env` into computation. (almost compulsory, asks is rarely being used)
 2. so we could construct functions of type `a -> Reader r b` or just `Reader r b`. (compulsory)
-3. `local` or `withReaderT` alter environment (optional)runreaderT ==> bring out , follow by an Env. (optional)
-4. `runReader` or `runreaderT` to unwrap functions. (compulsory)
-5. Feed the `env` information (compulsory)
+3. `local` or `withReaderT` alter environment (optional)
+5. `runReader` or `runreaderT` to unwrap functions. (compulsory)
+6. Feed the `env` information (compulsory)
    
 #### Intuition:
-Pass Env/Context/Configuration information through a chain of operations that share the same information.
+Pass Env/Context/Configuration information through a chain of operations that depend on same set of configurations.
 
 **terms** 
 
@@ -87,7 +84,7 @@ Pass Env/Context/Configuration information through a chain of operations that sh
 **intuitation recap**
 
    - pass environment information `env` through all components of a function chain. 
-   - every functions in this function chain use this `env`.
+   - every functions in this function chain use this `env` or part of this `env`.
    - Common usage include:  
   
         > ask  :: introducing `env` into function chain.    
@@ -148,7 +145,7 @@ import           Data.Store
 - A Chain of core functions. 
     - Input is from a1 of type `Int`
     - chain output is from a3 of type `Double`
-    - Only when outinput and `env` being provided, the result can be produced.
+    - Only when input and `env` being provided, the result can be produced.
     ```
     chainA :: Int -> Reader Int Double
     chainA n = do
@@ -156,7 +153,7 @@ import           Data.Store
         t2 <- a2 t1         -- core operaiton 2
         a3 t2               -- core operation 3
     ```
-    **alternative chain method:** `kleisli arrow`
+    **alternative:** `kleisli arrow`
     ```
     chainA' :: Int -> Reader Int Double
     chainA' = a1 >=> a2 >=> a3
@@ -170,7 +167,7 @@ import           Data.Store
 ```
 In this example `env` is 2 and `n` (the initial input) is 10 so :
 ```
-t1 = 10 + 2 , t2 = 2 / 12,  t3 = 2*2 / 12  =  0.33333333
+t1 = 10 + 2 , t2 = 2 / 12,  t3 = 2* (2 / 12)  =  0.33333333
 ```
 ### 2.Example Two
 - A chian of functions depend only on `Env` information.
@@ -348,7 +345,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
 
 ### 5.Complex Example : Staging    
 
-#### Business logic requirements:
+#### Business logic :
 
 1. Core functions: 
    - `f1 :: a -> b `
@@ -461,12 +458,12 @@ coreChain = (\_ -> sf1) >=> sf2 >=> sf3 >=> sf4 >=> (\_ -> sf5)
 ```
 
 4. Now we would like to:
-    1. Serialize the core output of each core functions to the disk.
-    2. If relative env information is new , we do the calculation.
+    1. Serialize the output of each core functions to the disk.
+    2. If env information is new , we do the calculation.
     3. If previous calculation is new, we do this calculation.
     4. otherwise, we deserialize what we saved on the disk.
 
-5. we need to name each stage 
+5. we need to name each stage/computation 
 `type StageName = String`
 
 6. information need for core function `a -> b` now need to embellished with a `Boolean` type to indicate the serialization status.    
@@ -484,7 +481,7 @@ checkSerialization = undefined
     2. a core function of type ` a -> StageCore b `.
     3. produce a new function ` Core a -> StageCore (Core b)   
 This would be make more sense, 
-    - embellish original core-function output with the Bool information `(a, Bool) -> StageCore (b,Bool) == Core a -> StageCore (Core b)`
+    - embellish input/output of the original core-function with the Bool information `(a, Bool) -> StageCore (b,Bool) == Core a -> StageCore (Core b)`
     - this bool information is being used for helping following operation to decide whether to do the computation or just desrialize from dist.
     - a `StageName` being used to identify stage and influence the Boolean information.
 ```
@@ -529,7 +526,7 @@ stageChain =
 #### Example 
 - The above `Complex example` is the main body of ReaderT design pattern.
 - Initialize `Env` using [configurator](../package-configurator).
-- However each computation in the computation chain only relies on part of `Env`. Let's fix this by using `Has` ad hoc polymorphism.
+- Each computation in the computation chain only relies on part of `Env`. Fix this by using `Has` typeclass.
 ```
 data Env = Env
   { sf1Env :: String                --being used by sf1 only
@@ -649,7 +646,7 @@ In this case:
 2. It can be test very easily.        
 3. The type of the core computation could stay the same as before, but we updated the participant component with more flexibility.
 
-***3. new core computation chain***
+***3. new computation chain***
 
 Type signature stays the same as before
 ```
