@@ -10,7 +10,7 @@ draft: false
 #### Path 
 - [Learn you a haskell](http://learnyouahaskell.com/for-a-few-monads-more)
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
-- This one 
+
 
 ### Monadic Scenario
 
@@ -521,6 +521,7 @@ stageChain =
 #### Path 
 - [Monad Reader](../monad-reader)
 - [fp complete: ReaderT](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern) (compulsory)
+- [haskell in production](http://felixmulder.com/writing.html)
 
 #### Desire 
 - Want to know what is this function about from the type signature.
