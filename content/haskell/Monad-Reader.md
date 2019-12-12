@@ -522,6 +522,45 @@ stageChain =
 - [Monad Reader](../monad-reader)
 - [fp complete: ReaderT](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern) (compulsory)
 
+#### Desire 
+- Want to know what is this function about from the type signature.
+
+#### issues and solutions
+
+1. Information in the function type signature: 
+     - **Obvious**: core function is from `Double` to `String`
+     - **Blur**: The meaning of StageCore. Needs reference of `StageCore`
+     - **No**: which part of `env` affects this function.
+  ```
+      sf4 :: Double -> StageCore String     
+      sf4 arg4 = do                              
+        env <- ask                                                      
+        return $ show $ sf4Env env + arg4                              
+  ```
+2. Use `Has` type class to constraint only necessary information to be used in `env` 
+  ```
+    type NewStage r a = ReaderT r IO a    
+
+    class HasEnv4 a  where
+      getSF4env :: a -> Double
+  ```
+  `NewStage Double String` enabling use to use `Double` in doing test. So we don't need to construct a meaningless `env` .
+  ```
+    instance HasEnv4 Double where
+      getSF4env = id
+  ```
+  ```
+    instance HasEnv4 Env where
+      getSF4env = sf4Env
+  ```
+  ```
+   sf4N                                  
+     :: (HasEnv4 r)                           
+     => Double -> NewStage r String                                  
+   sf4N arg4 = do                                                   
+     env <- ask                                                   
+     return $ show $ getSF4env env + arg4
+  ```
 
 #### Example 
 - The above `Complex example` is the main body of ReaderT design pattern.
