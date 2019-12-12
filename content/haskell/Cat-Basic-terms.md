@@ -13,7 +13,13 @@ draft: true
   function variables renaming
   
 - `eta conversion`   
-  point free
+  **1.**  `\x -> abs x`
 
+  **2.**  `abs`
+  - from 1 to 2 is eta reduction (point free)
+  - from 2 to 1 is eta abstraction 
+
+  #### references:
+    - [what's the motivation for eta rules](https://mail.haskell.org/pipermail/haskell-cafe/2010-December/087850.html)
 - `beta reduction`   
   function evaluation
