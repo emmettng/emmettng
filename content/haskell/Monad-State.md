@@ -10,7 +10,6 @@ draft: false
 - [Hackage Control.Monad.Trans.State.Lazy](http://hackage.haskell.org/package/transformers-0.5.4.0/docs/src/Control-Monad-Trans-State-Lazy.html#StateT)
 
 ``` 
-module Monadic.ReaderState.StateForHuman where
 newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
 ```
 
@@ -37,7 +36,7 @@ instance (Monad m) => Monad (StateT s m) where
 ### Monadic Scenario
 > - A piece of information `s` affects the output of the computation `a`.
 >> `s -> a`
-> - Sometimes `s` will be updated and could affect following computation, so need to be preserved.
+> - Sometimes, the value of `s` will be updated and could affect following computation, so need to be preserved.
 >>  `s -> (a,s)` 
 > - Two or more computations like this composed by `>>=` or `>=>` means each computation use the information `s` passed by previous one.
 >> ` f >>= g :: s0 -> (a,s1) -> ( a -> s1 -> (b,s2)) -> (s0 -> (b,s2)`
