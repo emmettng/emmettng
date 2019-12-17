@@ -12,4 +12,4 @@ He then forward this task to the kidnapped expert and the other 99 monkeys. He s
 
 Unfortunately, after so many years, this serial killer has to keep suppressing his unspeakable dark desire. Because all these hostages could produce distinguishable (from monkey) work at easy.
 
-Until one day, he need a solution from a data scientist. And all his could provide to the data scientist and monkeys are the record of task description and a calculator.
+Until one day, he needs a solution from a data scientist. And all he could provide to the data scientist and monkeys are the record of task description and a calculator.
