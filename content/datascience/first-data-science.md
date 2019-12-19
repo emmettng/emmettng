@@ -29,3 +29,9 @@ but you woudln't except he show everything that is yellow
 
 learn some rule to identifi yellow
     real world--> to many entropy
+
+
+concepts:
+- equiangular-sampling
+- bluenoise 
+- TAA...(Temporal Antialiasing and Supersampling)
