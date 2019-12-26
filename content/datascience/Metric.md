@@ -8,6 +8,15 @@ Linear model
 - linear classification 
 - logistic regression : https://www.quora.com/Why-is-logistic-regression-considered-a-linear-model
 
+correlation family: https://en.wikipedia.org/wiki/Cross-correlation#Cross-correlation_of_random_vectors
+- resources: 
+	1. /home/wh/Papers/math/Explain (Cross _ Auto) Correlation, Normalize & Time shift.html
+	2. https://webcache.googleusercontent.com/search?q=cache:Rj0xobTiBFkJ:https://anomaly.io/understand-auto-cross-correlation-normalized-shift/index.html+&cd=6&hl=en&ct=clnk&gl=us
+
+- convolution 
+- cross-correlation 
+- auto-correlation
+
 Historical path 
 
 - Regression ( all loss functions)
