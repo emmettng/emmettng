@@ -1,5 +1,5 @@
 ---
-title: "Typeclass Overview"
+title: "Type Overview"
 date: 2019-12-24T10:58:12+08:00
 draft: true
 ---
@@ -22,10 +22,13 @@ Different sematics  :: affect the function of target type .
 
 |  | List |product    |Sum   |  -> |   
 |:--|:--:|:--:|:--:|:--:|
-| `<$> :: a -> b -> f a -> f b`| Container | | | |
-| `<*> :: f (a -> b) -> f a -> f b`    | | | | |
+| `<$> :: a -> b -> f a -> f b`| Container | Container |Container |Container |
+| `<*> :: f (a -> b) -> f a -> f b`    | Generator|Container |Container |Container |
 | `<|>`    | | | | |
 | `>>=`| | | | |
+
+- `Container` : Value/s of Type a ( deterministic)
+- `Generator` : Value/s of Type a ( non-deterministic)
 
 - Functor : <$>
 - Applicative 
