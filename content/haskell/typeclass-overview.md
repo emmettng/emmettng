@@ -6,19 +6,68 @@ draft: true
 
 ### online source
 
-- [typeclass wiki](https://wiki.haskell.org/Typeclassopedia) : Worth reading every couple of monthes.
-- [optic types](http://oleg.fi/gists/posts/2017-04-18-glassery.html)
-- [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
+- **basic**
+  - [typeclass wiki](https://wiki.haskell.org/Typeclassopedia) : Worth reading every couple of monthes.
+  - [mmhaskell: why haskell](https://mmhaskell.com/blog/2019/1/7/why-haskell-i-simple-data-types)
+
+- **advanced**
+  - [optic types](http://oleg.fi/gists/posts/2017-04-18-glassery.html)
+  - [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
 
 ### Note
 - Enginerring point of view: haskell could provide better factorization. 
-    - `Better` means: easy to matinaine, update or modify.
-      - Influence of  Local modification is predictable :: Means if when facing requriment of modification , we only need to modify local. and It won't affect other functioning part. 
+`Better` refers to:
+  1. The effect of local modification is predictable.
+  1. Business requirement (Functionality) could be arranged or updated with meaningful type description.
 
 
-Different sematics  :: affect the function of target type . 
+### Parametric Types
+>**Every piece of information matters in its own way**
 
-**One target type at one time**
+1. `Type Constructor` define global representation of a `type`.
+2. `Type Constructor` may has 
+    - ***Zero*** argument : Then the global representation carries all information of this type .
+    - ***More*** argument : Then the global representation is consists of 
+      - `Target type` 
+      - `Context type`
+```
+Example:
+
+data Tree a = Tip | Node a (Tree a) (Tree a)
+```
+- **Global Representation** (***Type constructor***): `Tree a`
+- **Local Representation** (***Value constructor***): ` Tip | Node a (Tree a) ( Tree a)`
+- ***Target Type*** : `'a'` in `global representation`
+- ***Context type*** : `Tree` in `global representation`
+
+Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on **One target type at one time**. AND:
+- ***Target Type*** : carries information we care about. So reasoning behaviour of target computational chain would be easy.
+- ***Context Type***: Represent how target information being organized( ata structure) or how target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
+```
+Example:
+
+data Tree a = Tip | Node a (Tree a) (Tree a)
+data List a = Nil | Cons a (List a)
+```
+-  Different ***Context Type*** indicates different data structure based on `a`. ( when **Target Type** be the same `a`)
+
+```
+Example: 
+
+instance (Functor m) => Functor (WriterT w m) where
+    fmap f = mapWriterT $ fmap $ \ ~(a, w) -> (f a, w)
+
+instance (Monoid w, Monad m) => Monad (WriterT w m) where
+    ...
+    m >>= k  = WriterT $ do
+        ~(a, w)  <- runWriterT m
+        ~(b, w') <- runWriterT (k a)
+        return (b, w `mappend` w')
+```
+- Being the instance of different typeclasses, one ***Context Type*** could represent different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
+
+**Therefore, haskell enable us to factorize target computational chain out of computational context.**
+
 
 Product 
 - `((,) a)`
@@ -46,7 +95,7 @@ Product
 
 ***Summary***
 
-`<*> :: f (a ->b) -> f a -> f b` parametric information starts to effect
+`<*> :: f (a ->b) -> f a -> f b` Context information starts to effect
 
 `<$>` cannot handle this
 
@@ -54,7 +103,7 @@ Product
 
 `<*>` cannot provide this composition ability
 
-`>>=` where the parametric information starts to shine
+`>>=` where the Context information starts to shine
 
 example of `applicativeDo`
 ```
@@ -85,12 +134,7 @@ The ApplicativeDo extension is described in this wiki page, and in more detail i
   - `f <*> xs`: Every element of the list `xs` will be input of function `f`.
   - Default semantics of applicative functor of `[]`.
 
-- utilities :
-  - `liftA2` 
-    ```
-    liftA2 :: (a -> b -> c) -> f a -> f b -> f c
-      liftA2 f x = (<*>) (fmap f x)
-    ```
+
 
 #### MonadTrans
 
@@ -173,6 +217,13 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
 - MonadFail
 - Contravarriant
 
+**Utilities**
+- utilities :
+  - `liftA2` 
+    ```
+    liftA2 :: (a -> b -> c) -> f a -> f b -> f c
+      liftA2 f x = (<*>) (fmap f x)
+    ```
 
 ## Useful operations
 | [`on monads`](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type | `on Applicative` | type|
@@ -196,3 +247,37 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
   ∗ Actually, because Haskell allows general recursion, one can recursively construct infinite grammars, and hence Applicative (together with Alternative) is enough to parse any context-sensitive language with a finite alphabet. See Parsing context-sensitive languages with Applicative.
   ```
   How is this work ?
+
+ ## TODO 
+  `newtype`
+  [Mileski twitter example](https://twitter.com/BartoszMilewski/status/1210753654329790464)
+  ```
+  type ListPair a = [(Card,a)]
+  instance Functor ListPair where 
+    fmap f = fmap (bimap id f)
+  
+  > The type synonym 'ListPair' should have one argument but has been given one.
+  > In the instance declaration for 'Functor ListPair'
+  ```
+  The error free form should be 
+  ```
+  newtype ListPair a = LP {unLP :: [(Card,a)]}
+  instance Functor ListPair where 
+    fmap f = fmap (bimap id f)
+  ```
+  Then wrap and unwrap value of type `ListPair` explicitly.
+
+  - If the function instance declaration with `type` synonym works.
+    ```
+    t :: [(Card,String)]
+    h :: (Card,String) -> a
+    g :: String -> a
+
+    let fh = fmap h t     -- function fh
+    let fg = fmap g t     -- function fg
+    ```
+    the `fmap` in function `fh` is defined in `instance Functor []`
+    the `fmap` in function `fg` is defined in `instance Functor ListPair`
+    In this case what instance will being used is not determined by the type of `t`, it is also determined by the type of `f` (as in `fmap f ` in this example `fg` and `fh`). This can be achieved, however:
+      - most of the time the instance of fmap being used can be determined by the type of `t` only. Checking two palces `t` and `f` is no efficient. 
+      - It is simple to introduce a `newtype` as the wrapper to unify the place that contains information about instance will being used. ( in `t` only) 
