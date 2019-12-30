@@ -14,14 +14,14 @@ draft: true
   - [optic types](http://oleg.fi/gists/posts/2017-04-18-glassery.html)
   - [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
 
-### Note
+## Note
 - Enginerring point of view: haskell could provide better factorization. 
 `Better` refers to:
   1. The effect of local modification is predictable.
   1. Business requirement (Functionality) could be arranged or updated with meaningful type description.
 
 
-### Parametric Types
+## Parametric Types
 >**Every piece of information matters in its own way**
 
 1. `Type Constructor` define global representation of a `type`.
@@ -180,7 +180,65 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
     ```
     wirte function focus on innermost monad and `lift` all the way up to the outer most. `More Examples`
   - Summarize [RWST](http://hackage.haskell.org/package/transformers-0.2.2.0/docs/src/Control-Monad-Trans-RWS-Lazy.html)
-#### Group 1.1
+
+
+
+## Group 1
+`Semigroup` and `Monoid` 
+#### Learning source
+- [schoolofhaskell](https://www.schoolofhaskell.com/user/mgsloan/monoids-tour)
+
+### 1. Semigroup ***[Data.Semigroup](https://hackage.haskell.org/package/base-4.9.0.0/docs/Data-Semigroup.html)***
+
+Define binary function `<>` that take input and give output of the same type.
+
+```
+class Semigroup a where
+  (<>) :: a -> a -> a
+
+  default (<>) :: Monoid a => a -> a -> a
+  (<>) = mappend
+```
+### 2. Monoid
+
+Define `mempty :: a ` that enabling `<> mempty` to be an `identity function` on type `a`.
+
+```
+class Semigroup a => Monoid a where
+        -- | Identity of 'mappend'
+        mempty  :: a
+
+        -- | An associative operation
+        --
+        -- __NOTE__: This method is redundant and has the default
+        -- implementation @'mappend' = '(<>)'@ since /base-4.11.0.0/.
+        mappend :: a -> a -> a
+        mappend = (<>)
+        {-# INLINE mappend #-}
+
+        -- | Fold a list using the monoid.
+        --
+        -- For most types, the default definition for 'mconcat' will be
+        -- used, but the function is included in the class definition so
+        -- that an optimized version can be provided for specific types.
+        mconcat :: [a] -> a
+        mconcat = foldr mappend mempty
+```
+  - `Dual` [Data.Monoid](https://hackage.haskell.org/package/base-4.9.0.0/docs/src/Data.Monoid.html#Dual)
+    ```
+    package Data.Semigroup:
+    instance Semigroup a => Semigroup (Dual a) where
+      Dual a <> Dual b = Dual (b <> a)
+      stimes n (Dual a) = Dual (stimes n a)
+
+    package Data.Monoid:
+    instance Monoid a => Monoid (Dual a) where
+            mempty = Dual mempty
+            Dual x `mappend` Dual y = Dual (y `mappend` x)
+    ``` 
+## Group 2: Monoidal subclass 
+Several classes have `monoidal subclass` to model computation that support `failure` or `choice`.
+
 - Applicative 
   - Alternative
 - Monad
@@ -201,17 +259,12 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
     ```
     TODO: Why MonadFail instead of Prelude.fail
     [readthis](https://prime.haskell.org/wiki/Libraries/Proposals/MonadFail)
-
-### Group 2
-- Semigroup
-- Monoid
- 
-### Group 3
+## Group 3
 - Foldable: (Monoid m ) => foldMap --> Others
 - Traversable
 
 
-### Group 4
+## Group 4
 - MonadTrans
 - MonadIO
 - MonadFail
