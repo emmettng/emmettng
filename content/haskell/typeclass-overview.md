@@ -27,7 +27,7 @@ draft: true
 1. `Type Constructor` define global representation of a `type`.
 2. `Type Constructor` may has 
     - ***Zero*** argument : Then the global representation carries all information of this type .
-    - ***More*** argument : Then the global representation is consists of 
+    - ***More*** argument : Then the global representation consists of 
       - `Target type` 
       - `Context type`
 ```
@@ -184,8 +184,9 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
 
 
 ## Group 1
-`Semigroup` and `Monoid` 
-#### Learning source
+`Semigroup` and `Monoid` represent  `type :: a` and `an operation :: a -> a -> a` on that `type`.
+
+#### docs
 - [schoolofhaskell](https://www.schoolofhaskell.com/user/mgsloan/monoids-tour)
 
 ### 1. Semigroup ***[Data.Semigroup](https://hackage.haskell.org/package/base-4.9.0.0/docs/Data-Semigroup.html)***
@@ -201,7 +202,7 @@ class Semigroup a where
 ```
 ### 2. Monoid
 
-Define `mempty :: a ` that enabling `<> mempty` to be an `identity function` on type `a`.
+Define `mempty :: a ` that enabling `(<> mempty)` to be an `identity function` on type `a`.
 
 ```
 class Semigroup a => Monoid a where
@@ -237,14 +238,80 @@ class Semigroup a => Monoid a where
             Dual x `mappend` Dual y = Dual (y `mappend` x)
     ``` 
 ## Group 2: Monoidal subclass 
+1. `Parametric type` consists of `target type` and `context type` .
+1. Different `context type` is represented with different typeclasses instance, such as  `Functor, Applicative, Monad` etc.
+2. `t` could be a `parametric type` of a `Monoidal operation :: t -> t -> t`. `Context type` with specific semantics (`typeclass`) may leads to different `monoidal operation`.
+
+```
+Maybe Example:
+instance (Functor m, Monad m) => Alternative (MaybeT m) where
+    empty = mzero
+    (<|>) = mplus
+
+instance (Monad m) => MonadPlus (MaybeT m) where
+    mzero = MaybeT (return Nothing)
+    mplus x y = MaybeT $ do
+        v <- runMaybeT x
+        case v of
+            Nothing -> runMaybeT y
+            Just _  -> return v
+```
+
+`Reader Example:`
+```
+instance (Alternative m) => Alternative (ReaderT r m) where
+    empty   = liftReaderT empty
+    {-# INLINE empty #-}
+    m <|> n = ReaderT $ \ r -> runReaderT m r <|> runReaderT n r
+    {-# INLINE (<|>) #-}
+
+instance (MonadPlus m) => MonadPlus (ReaderT r m) where
+    mzero       = lift mzero
+    {-# INLINE mzero #-}
+    m `mplus` n = ReaderT $ \ r -> runReaderT m r `mplus` runReaderT n r
+    {-# INLINE mplus #-}
+```
+`Writer Example:`
+```
+instance (Monoid w, Alternative m) => Alternative (WriterT w m) where
+    empty   = WriterT empty
+    {-# INLINE empty #-}
+    m <|> n = WriterT $ runWriterT m <|> runWriterT n
+    {-# INLINE (<|>) #-}
+
+instance (Monoid w, MonadPlus m) => MonadPlus (WriterT w m) where
+    mzero       = WriterT mzero
+    {-# INLINE mzero #-}
+    m `mplus` n = WriterT $ runWriterT m `mplus` runWriterT n
+    {-# INLINE mplus #-}
+
+``` 
+
+
 Several classes have `monoidal subclass` to model computation that support `failure` or `choice`.
 
 - Applicative 
   - Alternative
 - Monad
     - MonadPlus
-    - MonadFix (read after the first time finishing typeclass wiki)
-    - MonadFail
+- Arrow
+    - ArrowPlus
+    - Arrow Zero
+
+
+
+## Group 3
+- Foldable: (Monoid m ) => foldMap --> Others
+- Traversable
+
+
+## Group 4
+- MonadTrans
+- MonadIO
+- MonadFail
+- MonadFix (read after the first time finishing typeclass wiki)
+- Contravarriant
+    
     ```
     Prelude Control.Monad.Fail> :info fail
     class Monad m => MonadFail (m :: * -> *) where
@@ -259,24 +326,8 @@ Several classes have `monoidal subclass` to model computation that support `fail
     ```
     TODO: Why MonadFail instead of Prelude.fail
     [readthis](https://prime.haskell.org/wiki/Libraries/Proposals/MonadFail)
-## Group 3
-- Foldable: (Monoid m ) => foldMap --> Others
-- Traversable
 
 
-## Group 4
-- MonadTrans
-- MonadIO
-- MonadFail
-- Contravarriant
-
-**Utilities**
-- utilities :
-  - `liftA2` 
-    ```
-    liftA2 :: (a -> b -> c) -> f a -> f b -> f c
-      liftA2 f x = (<*>) (fmap f x)
-    ```
 
 ## Useful operations
 | [`on monads`](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type | `on Applicative` | type|
@@ -291,6 +342,14 @@ Several classes have `monoidal subclass` to model computation that support `fail
 
 `“underscored” variants, such as sequence_ and mapM_; these variants throw away the results of the computations passed to them as arguments, using them only for their side effects.`
 - This so call `side effects` is the needs more attention and example
+
+**Utilities**
+- utilities :
+  - `liftA2` 
+    ```
+    liftA2 :: (a -> b -> c) -> f a -> f b -> f c
+      liftA2 f x = (<*>) (fmap f x)
+    ```
 
 ##TODO
 - draw a relation graph of these useful operations above
