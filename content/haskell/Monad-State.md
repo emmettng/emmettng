@@ -13,13 +13,17 @@ draft: false
 newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
 ```
 
-**Simple deifinition** from *learn youa haskell*
-
+**Simple definition** from *learn you a haskell*
+```
+newtype State s a = State { runState :: s -> (a,s) }  
+```
 {{< image src="/imgs/lyah_state.png" alt="State Monad" position="center" style="border-radius: 8px;" >}}
 
 
 **Complete definition** from *Control.Monad.Trans*
 ```
+newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
+
 instance (Monad m) => Monad (StateT s m) where
     return a = StateT $ \ s -> return (a, s)
     m >>= k  = StateT $ \ s -> do
@@ -33,14 +37,15 @@ instance (Monad m) => Monad (StateT s m) where
 
 
 
-### Monadic Scenario
-> - A piece of information `s` affects the output of the computation `a`.
->> `s -> a`
+### Monadic Semantics 
+> - A piece of information `s` affects the output of the computation `a -> b`.
+>> `s -> a -> b == a -> s -> b`
 > - Sometimes, the value of `s` will be updated and could affect following computation, so need to be preserved.
->>  `s -> (a,s)` 
+>>  `a -> s -> (b,s)` 
 > - Two or more computations like this composed by `>>=` or `>=>` means each computation use the information `s` passed by previous one.
->> ` f >>= g :: s0 -> (a,s1) -> ( a -> s1 -> (b,s2)) -> (s0 -> (b,s2)`
-
+>> ` f >>= g :: s0 -> (a,s1) -> ( a -> s1 -> (b,s2)) -> (s0 -> (b,s2)` \
+>> `s0, s1, s2` are values of the type `s`.   
+>> Clearly, `>>=` and `>=>` chained these computations and hide the intermediate state `s1`, produce a function between `s0` and `s2`.
 - auxiliary functions `get`, `put`, `return`
 - each produce a State monad in different purposes
 - these special purpose State monads are composed by `>>=` operator.
@@ -123,6 +128,7 @@ evalState m s = fst (runState m s)
   get the function of type ` :: s -> (a,s) `wrapped inside. They each works slight differently. (compulsory)    
     5.1 runState / runStateT retrive function ` s-> (a,s)` or `s -> m (a,s)`    
     5.2 evalState / evalStateT retrive function ` s -> a` or ` s -> m a`
+6. feed to initial state `s0` into the function `s -> (a,s)` and get the final result `a` and final state `s`.
 
 #### Intuition:
 1. State Monad wrap a function from type `s` to an core output `a` and new value of type `s`.

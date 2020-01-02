@@ -15,21 +15,21 @@ draft: true
   - [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
 
 ## Note
-- Enginerring point of view: haskell could provide better factorization. 
+- Engineering point of view: haskell could provide better factorization. 
 `Better` refers to:
   1. The effect of local modification is predictable.
-  1. Business requirement (Functionality) could be arranged or updated with meaningful type description.
+  1. Business requirement (Functionality) could be organized or analysed by manipulating meaningful type description.
 
 
 ## Parametric Types
->**Every piece of information matters in its own way**
+>**Every piece of information matters in its own way.**
 
 1. `Type Constructor` define global representation of a `type`.
 2. `Type Constructor` may has 
-    - ***Zero*** argument : Then the global representation carries all information of this type .
-    - ***More*** argument : Then the global representation consists of 
-      - `Target type` 
-      - `Context type`
+    - ***Zero*** argument (`a`): Then the global representation carries all information of this type .
+    - ***More*** arguments (`T a`): Then the global representation consists of 
+      - `Target type 'a' ` 
+      - `Context type 'T' `
 ```
 Example:
 
@@ -37,12 +37,12 @@ data Tree a = Tip | Node a (Tree a) (Tree a)
 ```
 - **Global Representation** (***Type constructor***): `Tree a`
 - **Local Representation** (***Value constructor***): ` Tip | Node a (Tree a) ( Tree a)`
-- ***Target Type*** : `'a'` in `global representation`
-- ***Context type*** : `Tree` in `global representation`
+- ***Target Type*** : `'a'` in `global representation`.
+- ***Context type*** : ` 'Tree' ` in `global representation`.
 
-Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on **One target type at one time**. AND:
-- ***Target Type*** : carries information we care about. So reasoning behaviour of target computational chain would be easy.
-- ***Context Type***: Represent how target information being organized( ata structure) or how target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
+Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on the transform of `target types`. Each computation focus on **One target type at a time**. AND:
+- ***Target Type*** : Carries information we care about. So reasoning behaviour of target computational chain would be easy.
+- ***Context Type***: Represent how target information being organized( data structure) or how target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
 ```
 Example:
 
@@ -64,34 +64,76 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
         ~(b, w') <- runWriterT (k a)
         return (b, w `mappend` w')
 ```
-- Being the instance of different typeclasses, one ***Context Type*** could represent different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
+- Being the instance of different typeclasses, one ***Context Type*** could carries different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
+  
+  [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
+  - `functor` + `Writer` ==> `Writer` is a container in this case.
+  - `Monad` + `Writer` ==> `Writer` is a computational context relies on `Monoid` type to accumulate( `mappend`) some extra information `w`.
+
+  ```
+  mapWriterT :: (m (a, w) -> n (b, w')) -> WriterT w m a -> WriterT w' n b
+  mapWriterT f m = WriterT $ f (runWriterT m)
+
+  instance (Functor m) => Functor (WriterT w m) where
+    fmap f = mapWriterT $ fmap $ \ ~(a, w) -> (f a, w)
+  
+  instance (Monoid w, Monad m) => Monad (WriterT w m) where
+    return a = writer (a, mempty)
+    m >>= k  = WriterT $ do
+        ~(a, w)  <- runWriterT m
+        ~(b, w') <- runWriterT (k a)
+        return (b, w `mappend` w')
+  ```
+- `Context Type` could also be used to introduce a piece of extra information for avoiding being ambiguous. 
+  
+  example:
+ 
+  `(,)` and `Writer` are equal up to isomorphism.
+  ```
+      > type P = forall a. ((,)a)
+      > :info P
+      type P = forall a. (,) a :: * -> *
+  ```
+  ```
+    newtype Writer m a = Writer {runWriter :: (a , w)}
+  ```
+  They contain equal amount of information. The `Writer` part in `newtype Writer` is being used to identify possible different instance of the same `typeclass`.
+  example:
+    ```
+    instance Monoid a => Applicative ((,) a) where
+      pure x = (mempty, x)
+      (u, f) <*> (v, x) = (u <> v, f x)
+      liftA2 f (u, x) (v, y) = (u <> v, f x y)
+
+    instance (Monoid w) => Applicative (Writer w ) where
+      pure a  = Writer $ (a, empty)
+      f <*> v = Writer $ k f v
+            where k (a, w) (b, w') = (a b, w `append` w')
+    ```
+  Both being instance of `Applicative`, `(,)` relies on the `first` of being `Monoid` type, `Writer` relies on the `second` part of `(,)` to be a `Monoid` type.
 
 **Therefore, haskell enable us to factorize target computational chain out of computational context.**
 
+## Group 0. `Computation Context`
 
-Product 
-- `((,) a)`
-  ```
-    > type P = forall a. ((,)a)
-    > :info P
-    type P = forall a. (,) a :: * -> *
-  ```
-  ```
-  instance Monoid a => Applicative ((,) a) where
-    pure x = (mempty, x)
-    (u, f) <*> (v, x) = (u <> v, f x)
-    liftA2 f (u, x) (v, y) = (u <> v, f x y)
-  ```
-- `Writer` a Monadic wrapper
-  ```
-  newtype Writer m a = Writer {runWriter :: (a , w)}
-  ```
-  
-| |  | List |product    |Sum   |  -> |   
+|**Computation Context**| 
+|:--:|
+|**Parametric type** X **Typeclasses** = **Computation Context**|
+
+Three common use `Typeclasses`
+1. `Functor`
+2. `Applicative`
+3. `Monad`
+
+Combining with different `parametric type` indicate certain `computation context`. Some of these implies same `Context Semantics`.
+
+|**Typeclass**|  | List |product    |Sum   |  -> |   
 |:--|:--|:--:|:--:|:--:|:--:|
 |`<$>`| `:: a -> b -> f a -> f b`| Container | Container |Container |Container |
 |`<*>`| `:: f (a -> b) -> f a -> f b`    | Generator|Container |Container |Container |
 |`>>=`| `:: m a -> (a -> m b) -> m b`| `[]` | Context Writer | Context Either/Maybe/IO | Context Reader/State
+
+
 
 ***Summary***
 
@@ -238,9 +280,12 @@ class Semigroup a => Monoid a where
             Dual x `mappend` Dual y = Dual (y `mappend` x)
     ``` 
 ## Group 2: Monoidal subclass 
-1. `Parametric type` consists of `target type` and `context type` .
-1. Different `context type` is represented with different typeclasses instance, such as  `Functor, Applicative, Monad` etc.
-2. `t` could be a `parametric type` of a `Monoidal operation :: t -> t -> t`. `Context type` with specific semantics (`typeclass`) may leads to different `monoidal operation`.
+0. In a `monoidal operation :: t -> t -> t`, `t` could be a `parametric type`.
+
+|**Typeclass**|  | List |product    |Sum   |  -> |   
+|:--|:--|:--:|:--:|:--:|:--:|
+|`<|>`| `:: f a-> f a -> f a`| Container | Container |Container |Container |
+|`mplus`:: m a-> m a -> m a`| Container | Container |Container |Container |
 
 ```
 Maybe Example:
