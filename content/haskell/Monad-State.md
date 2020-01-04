@@ -38,11 +38,12 @@ instance (Monad m) => Monad (StateT s m) where
 
 
 ### Monadic Semantics 
-> - A piece of information `s` affects the output of the computation `a -> b`.
->> `s -> a -> b == a -> s -> b`
-> - Sometimes, the value of `s` will be updated and could affect following computation, so need to be preserved.
->>  `a -> s -> (b,s)` 
-> - Two or more computations like this composed by `>>=` or `>=>` means each computation use the information `s` passed by previous one.
+> - A function from `s` to `a`.
+>> `s -> a` 
+> - Sometimes, the value of `s` will be updated and could affect following computation, so the new value need to be preserved.
+>>  `s -> (a,s)` 
+> - Now we have a new type `newtype State s a = State {runState ::s -> (a,s)}`.
+> - Two or more computations of type `a -> State s b` could be composed by `>>=` or `>=>` means each computation use the information `s` passed by previous one. (There could be other compositions that use state of other computation in different ways.)
 >> ` f >>= g :: s0 -> (a,s1) -> ( a -> s1 -> (b,s2)) -> (s0 -> (b,s2)` \
 >> `s0, s1, s2` are values of the type `s`.   
 >> Clearly, `>>=` and `>=>` chained these computations and hide the intermediate state `s1`, produce a function between `s0` and `s2`.
