@@ -3,6 +3,7 @@ title: "Monad: Writer"
 date: 2019-11-06T11:15:38+08:00
 draft: true
 ---
+> This summary follows the minimum useable principle.
 
 #### Path
 - [Yahtee1](http://h2.jaguarpaw.co.uk/posts/using-brain-less-refactoring-yahtzee/)
@@ -39,35 +40,29 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
 
 ### Monadic Semantics
 - Target type : `a`
-- Context type : `Writer w`
-
-Two folds meaning:
-Engineering
-We focus on transformation of `target types` **explicitly** and let this monad handle certain `Context information` **implicitly**.
-
-general:
-mapping relation and context which affect the mapping relation could be factorized in this form.
-
- TODO
-
+- Context type : `Writer m` or `WriterT w m`
+    - **Explicitly** : transformation among `target types :: a -> b -> c`.
+    - **Implicitly** : Aggregate `logging` information of type `w` during the target types transformation.
+> - There is a type `b`.
+> - There is a function (`:: a -> b`) from `a` to `b`.
+> - Many functions ` a -> b` , `b -> c` ... `y -> z` many compose as a transformation from `a -> z`.
+> - Each function many produce some extra `logging` information of type `w`. 
 > - The product of two types `w` and `b` is `(b,w)`.
-> - We have a new type `newtype Writer w a = Writer {runWriter :: (a,w)}`
+> - We want the result of this transformation `a -> z`, we also want to aggregate the `logging` information of each function in this transformation.
+> - We define a new type `newtype Writer w a = Writer {runWriter :: (a,w)}`
 > - In `Writer Monad` we care about computation compositions :
 >> - `>>= :: Writer w a -> (a -> Writer w b) -> Writer w b`.
 >> - `>=> :: (a -> Writer w b) -> ( b -> Writer w c) -> (a -> Writer w c)`
-> - **Explicitly**, we focus on transformation of `target types :: a -> b -> c`.
-> - **Implicitly**, `Writer Monad` accumulate extra `logging` information `w` of a series of computations: `a->(b,w)`, `b->(c,w)` and `c->(d,w)`.
-
-
+> - The transformation of `target types` and `logging` information are being processed explicitly and implicitly respectively.
 
 - auxiliary functions `tell`,`return`, `listen(s)`, `pass`,`censor`
 - Each result in a Writer monad.
 - These special purpose Writer Monad are composed by `>>` operator usually.
 - They collectively work as a single Writer Monad for certain function.
 
-### auxiliary function
 
-- **wrtier**: `lift` and `wrap` a type product `(a,w)` to be a `WriterT` monad.
+### wrtier
+- `lift` and `wrap` a type product `(a,w)` to be a `WriterT` monad.
     ```
     writer :: (Monad m) => (a, w) -> WriterT w m a
     writer = WriterT . return
@@ -121,3 +116,99 @@ mapping relation and context which affect the mapping relation could be factoriz
         ~((a, f), w) <- runWriterT m
         return (a, f w)
     ```
+
+### Example 1: Simple Example
+
+necessary imports:
+```
+import Control.Monad.Trans.Writer
+import GHC.Float
+```
+
+Code:
+```
+f1 :: Int -> Writer String Float
+f1 i = do
+  tell $ show i
+  return $ fromIntegral i + 0.2
+
+f2 :: Float -> Writer String Double
+f2 f = do
+  tell $ show f
+  return $ float2Double f * 2
+```
+Check in ghci:
+```
+> :info f1
+f1 :: Int -> Writer String Float
+> :info f2
+f2 :: Float -> Writer String Double
+> import Control.Monad    -- for the ( >=> ) operator
+> let ff = f1 >=>f2
+> :info ff
+ff :: Int -> WriterT String Data.Functor.Identity.Identity Double
+> let r = runWriter $ ff 10
+> :info r
+r :: (Double, String) 	-- Defined at <interactive>:20:5
+> r
+(20.399999618530273,"1010.2")
+```
+- `Double :: (10+0.2) * 2` 
+- ```String :: "10" ++ "10.2" = "1010.2"```. Because `String` is an instance of `Monoid` and `Semigroup` the `<>` defined on `String` is `++`.
+
+
+### Example 2: Real World Simple Example
+necessary import:
+```
+import Data.Traversable
+```
+Code:
+```
+data LoggingType = LoggingType
+  {
+    partOne :: Int
+  , partTwo :: Int
+  }deriving (Show,Eq)
+
+instance Semigroup LoggingType where
+  (LoggingType o1 t1) <> (LoggingType o2 t2) = LoggingType (o1 + o2) (t1 + t2)
+
+instance Monoid LoggingType where
+  mempty = LoggingType 0 0
+
+p1list = [1..10]
+p2list = [2,4..40]
+
+logList = uncurry LoggingType <$> zip p1list p2list
+
+createLog :: (Int,Int) -> Writer LoggingType Int
+createLog (e1, e2) =
+  let w = LoggingType e1 e2
+      s = e1 + e2
+  in writer (s,w)
+
+totalLog :: Writer LoggingType [Int]
+totalLog = mapM createLog $ zip p1list p2list
+```
+Check in ghci:
+```
+> totalLog 
+WriterT (Identity ([3,6,9,12,15,18,21,24,27,30],LoggingType {partOne = 55, partTwo = 110}))
+```
+Intuition:
+- Target Operation:
+    - `p1list` and `p2list` zip together produces the target input of type `[(Int,Int)]`.
+    - The target transform is `(Int,Int) -> Int`. Which is `s = e1 + e2`.
+    - Usually we use `map` or `fmap (<$>)` to lift this transform so it works in the `[]` container.
+- Context Semantics: 
+    - We want to log some information for each `target transform` of the element.
+    - Accumulate the sum of the first list and second list respectively.
+    - So define `LoggingType` as the instance of `Semigroup` and `Monoid`.
+    - The logging information is `LoggingType e1 e2`.
+- This newly Context sensitive transform `createLog` need to cooperate with `mapM` instead of `map`.
+- The Target Operation and Context Operation would more clear if we rewrite `createLog` as:
+    > ```
+    > createLog (e1,e2) = do
+    >   tell $ LoggingType e1 e2      -- tell : Context Operation
+    >   pure $ e1 + e2                -- pure : Target Operation
+    > ```

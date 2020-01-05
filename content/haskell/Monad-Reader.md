@@ -12,7 +12,7 @@ draft: false
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
 
 
-### Monadic Scenario
+### Monadic Semantics
 
 Several functions depend on the same `env` information. In other words, they are all readers of the same environment information. Many `Reader`s composed together by `>>=` or `>=>` to be a functional unit. The `env` information is being passed implicitly through the chain of computation.
 

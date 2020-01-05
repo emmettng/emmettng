@@ -124,7 +124,7 @@ A functional application is just a composition of `computational chains` of diff
 
 ## Section 0. `Computation Context`
 
-|**Computation Context**| 
+|**Computation Context**|  
 |:--:|
 |**Parametric type** X **Typeclasses** = **Computation Context**|
 
@@ -307,8 +307,9 @@ class Semigroup a => Monoid a where
 ## Section 2: Monoidal subclass 
 0. In a `monoidal operation :: t -> t -> t`, `t` could be a `parametric type`.
 
-|**Typeclass**|  | List |product    |Sum   |  -> |   
-|:--|:--|:--:|:--:|:--:|:--:|
+
+|**Typeclass**|  | List |product    |Sum   |  -> |
+|:--:|:--:|:--:|:--:|:--:|:--:|
 |`<|>`| `:: f a-> f a -> f a`| Container | Container |Container |Container |
 |`mplus`:: m a-> m a -> m a`| Container | Container |Container |Container |
 
@@ -372,19 +373,21 @@ Several classes have `monoidal subclass` to model computation that support `fail
 
 ## Section 3
 #### 3.0.Content 
-`:: (Functor t, Foldable t, Traversable t) => `
-| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|
-|--:|:--|--:|:--|
-|`return`| `a -m a`|`pure`|`a -> f a`|
-|`liftM2`|`(a -> b -> c) -> m a -> m b -> m c`|`liftA2`|`( a -> b -> c) -> f a -> f b -> f c`|
-|`mapM`|`(a -> m b) -> t a -> m (t b)`|`traverse`|`(a -> f b) -> t a -> f (t b)`|
-|`forM`|`t a -> (a -> m b) -> m (t b)`|`for`| `t a -> (a -> f b) -> f (t b)`|
+`:: (Functor t, Foldable t, Traversable t) => `  
+
+| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|      
+|:--:|:--:|:--:|:--:|  
+|`return`| `a -m a`|`pure`|`a -> f a`|    
+|`liftM2`|`(a -> b -> c) -> m a -> m b -> m c`|`liftA2`|`( a -> b -> c) -> f a -> f b -> f c`|   
+|`mapM`|`(a -> m b) -> t a -> m (t b)`|`traverse`|`(a -> f b) -> t a -> f (t b)`|  
+|`forM`|`t a -> (a -> m b) -> m (t b)`|`for`| `t a -> (a -> f b) -> f (t b)`|  
 |`sequence`|`t (m a) -> m ( t b)`|`sequenceA`|`t (f b) -> f ()`|
-|`mapM_`|`(a -> m b) -> t a -> m ()`|`traverse`|`(a -> f b) -> t a -> f ()`|
+|`mapM_`|`(a -> m b) -> t a -> m ()`|`traverse`|`(a -> f b) -> t a -> f ()`|  
 |`forM_`|`t a -> (a -> m b) -> m ()`|`for`| `t a -> (a -> f b) -> f ()`|
-|`sequence_`|`t (m a) -> m ()`|`sequenceA`|`t (f b) -> f ()`|
-#### 3.1.Applicative and Monad
-|function| constraint|type| define | import |
+|`sequence_`|`t (m a) -> m ()`|`sequenceA`|`t (f b) -> f ()`|  
+
+#### 3.1.Applicative and Monad 
+|function| constraint|type| define | import |  
 |:--:|:--:|:--:|:--:|:--:|:--:|
 |[liftA2](https://stackoverflow.com/questions/47065766/how-does-the-default-definition-of-in-haskell-work)| `Applicative f =>` | `(a -> b -> c) -> (f a -> f b -> f c)`| `Control.Applicative` | `GHC.Base`|
 |liftM2| `Monad m =>` | `(a -> b -> c) -> (m a -> m b -> m c)`| `Control.Monad` | `GHC.Base`|
@@ -395,7 +398,7 @@ Several classes have `monoidal subclass` to model computation that support `fail
 - `liftM2 f m1 m2 = do { x1 <- m1; x2 <- m2: return (f x2 x2)}`. This is the default definition and all `Parametric Types` above relies on this definition and has the same semantics as above.
 
 #### 3.2.Foldable
-|function| constraint|type| define | import |
+|function| constraint|type| define | import |    
 |:--:|:--:|:--:|:--:|:--:|:--:|
 |`foldMap`| `Monoid m, Foldable t`| `(a -> m) -> t a -> m`| `Data.Foldable` | `GHC.Base`|
 |`fold`| `Monoid m, Foldable t`| `t a -> m`| `Data.Foldable` | `Data.Foldable`|
@@ -553,29 +556,6 @@ Several classes have `monoidal subclass` to model computation that support `fail
     TODO: Why MonadFail instead of Prelude.fail
     [readthis](https://prime.haskell.org/wiki/Libraries/Proposals/MonadFail)
 
-
-
-## Useful operations
-| [`on monads`](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type | `on Applicative` | type|
-|--:|:--|--:|:--|
-|`return`| `:: a -m a`|`pure`|`:: a -> f a`|
-|`liftM2`||`liftA2`||
-|`sequence`||`sequenceA`||
-|`mapM`||`traverse`||
-|`forM`||`for`||
-|`mapM_`||`traverse_`||
-|`forM_`||`for`_||
-
-`“underscored” variants, such as sequence_ and mapM_; these variants throw away the results of the computations passed to them as arguments, using them only for their side effects.`
-- This so call `side effects` is the needs more attention and example
-
-**Utilities**
-- utilities :
-  - `liftA2` 
-    ```
-    liftA2 :: (a -> b -> c) -> f a -> f b -> f c
-      liftA2 f x = (<*>) (fmap f x)
-    ```
 
 ##TODO
 - draw a relation graph of these useful operations above

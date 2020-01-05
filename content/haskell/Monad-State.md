@@ -38,6 +38,11 @@ instance (Monad m) => Monad (StateT s m) where
 
 
 ### Monadic Semantics 
+- Target type : `a`
+- Context type : `State s` or `StateT s m`
+    - **Explicitly** : transformation among `target types`.
+    - **Implicitly** : Each computation produce new state information of type `s` and pass to the following computation in the target types transformation. 
+
 > - A function from `s` to `a`.
 >> `s -> a` 
 > - Sometimes, the value of `s` will be updated and could affect following computation, so the new value need to be preserved.
@@ -49,7 +54,7 @@ instance (Monad m) => Monad (StateT s m) where
 >> Clearly, `>>=` and `>=>` chained these computations and hide the intermediate state `s1`, produce a function between `s0` and `s2`.
 - auxiliary functions `get`, `put`, `return`
 - each produce a State monad in different purposes
-- these special purpose State monads are composed by `>>=` operator.
+- these special purpose State monads are composed by `>>=` and `>>` operator.
 - They collectively work as a single State Monad for certain function.
 
 ### get
@@ -122,7 +127,7 @@ evalState m s = fst (runState m s)
 1. use `get` to introduce state. (compulsory)
 2. some pure function :: `s -> a` will work on s . (optional)
 3. `return` wrap `a` into State Monad. (compulsory)
-4. `put` updates the state. (optional)
+4. `put` updates the state. (optional, must followed by a `return`)
 5. `evaState` / `evalStateT`    
              or   
     `runState` / `runStateT`    
