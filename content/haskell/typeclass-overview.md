@@ -1,30 +1,32 @@
 ---
-title: "Type Overview"
+title: "Typeclass Overview"
 date: 2019-12-24T10:58:12+08:00
 draft: true
 ---
 
-### online source
+### Reading list 
 
 - **basic**
-  - [typeclass wiki](https://wiki.haskell.org/Typeclassopedia) : Worth reading every couple of monthes.
+  - [typeclass wiki](https://wiki.haskell.org/Typeclassopedia) : Worth reading every couple of weeks.
   - [mmhaskell: why haskell](https://mmhaskell.com/blog/2019/1/7/why-haskell-i-simple-data-types)
 
 - **advanced**
   - [optic types](http://oleg.fi/gists/posts/2017-04-18-glassery.html)
   - [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
 
-## Note
-- Engineering point of view: haskell could provide better factorization. 
+## Recap 
+- Engineering point of view: haskell provides better factorization. 
 `Better` refers to:
   1. The effect of local modification is predictable.
   1. Business requirement (Functionality) could be organized or analysed by manipulating meaningful type description.
-
+- An application can be factorized into two parts:
+  1. A computational chain that is also a type transformation that focus on `Target type`s from ` a -> b -> c -> d -> ... -> z`.
+  2. This computational chain constantly switch among different `Computational Context`s, `T1` to `T2` to `T2 ...`
 
 ## Parametric Types
 >**Every piece of information matters in its own way.**
 
-1. `Type Constructor` define global representation of a `type`.
+1. `Type Constructor` defines global representation of a `type`.
 2. `Type Constructor` may has 
     - ***Zero*** argument (`a`): Then the global representation carries all information of this type .
     - ***More*** arguments (`T a`): Then the global representation consists of 
@@ -35,13 +37,14 @@ Example:
 
 data Tree a = Tip | Node a (Tree a) (Tree a)
 ```
-- **Global Representation** (***Type constructor***): `Tree a`
-- **Local Representation** (***Value constructor***): ` Tip | Node a (Tree a) ( Tree a)`
-- ***Target Type*** : `'a'` in `global representation`.
-- ***Context type*** : ` 'Tree' ` in `global representation`.
+  - **Global Representation** (***Type constructor***): `Tree a`
+  - **Local Representation** (***Value constructor***): ` Tip | Node a (Tree a) ( Tree a)`
+  - ***Target Type*** : `'a'` in `global representation`.
+  - ***Context type*** : ` 'Tree' ` in `global representation`.
 
 Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on the transform of `target types`. Each computation focus on **One target type at a time**. AND:
-- ***Target Type*** : Carries information we care about. So reasoning behaviour of target computational chain would be easy.
+
+- ***Target Type*** : Carries information type we mainly care about. So reasoning behaviour of target computational chain would be easy.
 - ***Context Type***: Represent how target information being organized( data structure) or how target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
 ```
 Example:
@@ -67,8 +70,9 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
 - Being the instance of different typeclasses, one ***Context Type*** could carries different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
   
   [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
+
   - `functor` + `Writer` ==> `Writer` is a container in this case.
-  - `Monad` + `Writer` ==> `Writer` is a computational context relies on `Monoid` type to accumulate( `mappend`) some extra information `w`.
+  - `Monad` + `Writer` ==> `Writer` is a computational context relies on `Monoid` type to accumulate( `mappend`) some extra `logging` information `w`.
 
   ```
   mapWriterT :: (m (a, w) -> n (b, w')) -> WriterT w m a -> WriterT w' n b
@@ -110,28 +114,45 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
       f <*> v = Writer $ k f v
             where k (a, w) (b, w') = (a b, w `append` w')
     ```
-  Both being instance of `Applicative`, `(,)` relies on the `first` of being `Monoid` type, `Writer` relies on the `second` part of `(,)` to be a `Monoid` type.
+  Both being instance of `Applicative` with same context semantics, `(,)` relies on the `first` element of being `Monoid` type, `Writer` relies on the `second` element of being a `Monoid` type.
 
-**Therefore, haskell enable us to factorize target computational chain out of computational context.**
+***Therefore, haskell enable us to factorize target `computational chain` out of `computational context`.***
 
-## Group 0. `Computation Context`
+So the reasoning of a long `computation chain` would be valid.
+
+A functional application is just a composition of `computational chains` of different `computational context`.
+
+## Section 0. `Computation Context`
 
 |**Computation Context**| 
 |:--:|
 |**Parametric type** X **Typeclasses** = **Computation Context**|
 
-Three common use `Typeclasses`
-1. `Functor`
-2. `Applicative`
-3. `Monad`
+Three common `Typeclass`es, that being used to define how `f` could affect the target computation `a -> b`.
+| `typeclass`| `main function`| `function type`|
+|:--:|:--:|:--:|
+|`Functor`| `<$>`| `(a -> b) -> f a -> f b`|
+|`Applicative`| `<*>` |`f(a -> b) -> f a -> f b`|
+|`Monad`|`>>=` | `f a -> ( a -> f b) -> f b`|
 
-Combining with different `parametric type` indicate certain `computation context`. Some of these implies same `Context Semantics`.
+Flip the argument of `>>=`, we get `(a-> f b) -> f a -> f b`. Now it is much clear. These function types could be seen as two parts. The first part includes:
 
-|**Typeclass**|  | List |product    |Sum   |  -> |   
+1. ` (a -> b)`, `f (a -> b)`, ` a -> f b`
+
+The second part of these three functions are all the same:
+
+2. `f a - f b`
+
+Intuitively, these three functions are about how to transform different mapping relations (in `1`) into context sensitive mapping `f a -> f b`. So that we could compose functions of the same `Context Semantics`.
+
+
+When `f a` is a certain `Parametric Type`, it could indicate a specific `Computation Context` of a specific `Context Semantics`.
+
+|**Parametric types**:|  List | Product    |Sum   |  Exponential |   
 |:--|:--|:--:|:--:|:--:|:--:|
-|`<$>`| `:: a -> b -> f a -> f b`| Container | Container |Container |Container |
-|`<*>`| `:: f (a -> b) -> f a -> f b`    | Generator|Container |Container |Container |
-|`>>=`| `:: m a -> (a -> m b) -> m b`| `[]` | Context Writer | Context Either/Maybe/IO | Context Reader/State
+|`<$>`|  Container | Container |Container |Container |
+|`<*>`|  Generator|Container |Container |Container |
+|`>>=`|  `[]` | Context Writer | Context Either/Maybe/IO | Context Reader/State
 
 
 
@@ -210,9 +231,14 @@ instance (Monad m) => Monad (MaybeT m) where
             Nothing -> return Nothing
             Just y  -> runMaybeT (f y)
 ```
-```
-For example, when a StateT s Maybe a computation fails, the state ceases being updated (indeed, it simply disappears); on the other hand, the state of a MaybeT (State s) a computation may continue to be modified even after the computation has "failed". This may seem backwards, but it is correct. 
-```
+
+> For example, when a `StateT s Maybe a` computation fails, the state ceases being updated (indeed, it simply disappears); on the other hand, the state of a `MaybeT (State s) a` computation may continue to be modified even after the computation has "failed". This may seem backwards, but it is correct. [[haskell wiki:typeclass](https://wiki.haskell.org/Typeclassopedia#Monad_transformers)]
+
+**Common usage**
+- When many `T m a` composed with `>>=`, the `Computational Context` is the outside `T`.
+- `runT` unwrap this `monad stack`, thus switch the `Computational Context` from `T` to `m`.
+
+## TODO:
 - TODO: needs more examples about how this works, such as `MaybeT (State s) a`
   - More about MonadTrans typeclass and [Transformer type classes](https://wiki.haskell.org/Typeclassopedia#Transformer_type_classes_and_.22capability.22_style)
    ([mtl](http://hackage.haskell.org/package/mtl)). need isolated tutorial and examples set. `mtl` obsolete the need of `lift` in `Monad.Trans` (more details) typelcass wiki has alot great further reading in monad transfer part.
@@ -224,8 +250,7 @@ For example, when a StateT s Maybe a computation fails, the state ceases being u
   - Summarize [RWST](http://hackage.haskell.org/package/transformers-0.2.2.0/docs/src/Control-Monad-Trans-RWS-Lazy.html)
 
 
-
-## Group 1
+## Section 1
 `Semigroup` and `Monoid` represent  `type :: a` and `an operation :: a -> a -> a` on that `type`.
 
 #### docs
@@ -279,7 +304,7 @@ class Semigroup a => Monoid a where
             mempty = Dual mempty
             Dual x `mappend` Dual y = Dual (y `mappend` x)
     ``` 
-## Group 2: Monoidal subclass 
+## Section 2: Monoidal subclass 
 0. In a `monoidal operation :: t -> t -> t`, `t` could be a `parametric type`.
 
 |**Typeclass**|  | List |product    |Sum   |  -> |   
@@ -345,12 +370,168 @@ Several classes have `monoidal subclass` to model computation that support `fail
 
 
 
-## Group 3
-- Foldable: (Monoid m ) => foldMap --> Others
-- Traversable
+## Section 3
+#### 3.0.Content 
+`:: (Functor t, Foldable t, Traversable t) => `
+| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|
+|--:|:--|--:|:--|
+|`return`| `a -m a`|`pure`|`a -> f a`|
+|`liftM2`|`(a -> b -> c) -> m a -> m b -> m c`|`liftA2`|`( a -> b -> c) -> f a -> f b -> f c`|
+|`mapM`|`(a -> m b) -> t a -> m (t b)`|`traverse`|`(a -> f b) -> t a -> f (t b)`|
+|`forM`|`t a -> (a -> m b) -> m (t b)`|`for`| `t a -> (a -> f b) -> f (t b)`|
+|`sequence`|`t (m a) -> m ( t b)`|`sequenceA`|`t (f b) -> f ()`|
+|`mapM_`|`(a -> m b) -> t a -> m ()`|`traverse`|`(a -> f b) -> t a -> f ()`|
+|`forM_`|`t a -> (a -> m b) -> m ()`|`for`| `t a -> (a -> f b) -> f ()`|
+|`sequence_`|`t (m a) -> m ()`|`sequenceA`|`t (f b) -> f ()`|
+#### 3.1.Applicative and Monad
+|function| constraint|type| define | import |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|[liftA2](https://stackoverflow.com/questions/47065766/how-does-the-default-definition-of-in-haskell-work)| `Applicative f =>` | `(a -> b -> c) -> (f a -> f b -> f c)`| `Control.Applicative` | `GHC.Base`|
+|liftM2| `Monad m =>` | `(a -> b -> c) -> (m a -> m b -> m c)`| `Control.Monad` | `GHC.Base`|
+- `liftA2 f x = <*> (fmap f x)`. Context information `f` affect function `a -> b -> c` in its own way. This default definition relies on `<*>` and `fmap`. Some support explicit definition which would be more efficient.
+  - Sum type `Maybe` & `Either e` : All `f a`, `f b` and `f c` must be success or nothing but error `e`.
+  - Product type `(,)` & `Writer w` : All logging information `w` be aggregated in the first element (in `(,)` ) or in the second element ( in `Writer` ).
+  - Exponential type [`(->) e`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/GHC.Base.html#Applicative) & [`Reader e`](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html#liftReaderT) : Now `f a` is of type  `e -> a`. Apply `f a`, `f b` with common environment information `e` respectively, then apply function `f :: a -> b -> c` on these two results.
+- `liftM2 f m1 m2 = do { x1 <- m1; x2 <- m2: return (f x2 x2)}`. This is the default definition and all `Parametric Types` above relies on this definition and has the same semantics as above.
+
+#### 3.2.Foldable
+|function| constraint|type| define | import |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|`foldMap`| `Monoid m, Foldable t`| `(a -> m) -> t a -> m`| `Data.Foldable` | `GHC.Base`|
+|`fold`| `Monoid m, Foldable t`| `t a -> m`| `Data.Foldable` | `Data.Foldable`|
+|`foldrM`| `Monad m, Foldable t`| `(a -> b -> m b) -> b -> t a -> m b`| `Data.Foldable` | `Data.Foldable`|
+|`foldlM` = `foldM`| `Monad m, Foldable t`| `(b -> a -> m b) -> b -> t a -> m b`| `Data.Foldable` | `Data.Foldable`|
+
+- `foldMap` substitute target type `a` in `foldable` context with `Monoid` type `m`, then collapse `Foldable m` to a single value of type `m`.
+    ```
+        foldMap :: Monoid m => (a -> m) -> t a -> m
+        foldMap f = foldr (mappend . f) mempty
+    ```
+    - `fold = foldMap id`
+- `foldrM` and `foldlM (foldM)` focus on folding over monadic values using `>>=`. Detailed discussion [here](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de)
+    ```
+    -- | Monadic fold over the elements of a structure,
+    -- associating to the right, i.e. from right to left.
+    foldrM :: (Foldable t, Monad m) => (a -> b -> m b) -> b -> t a -> m b
+    foldrM f z0 xs = foldl f' return xs z0
+      where f' k x z = f x z >>= k
+
+    -- | Monadic fold over the elements of a structure,
+    -- associating to the left, i.e. from left to right.
+    foldlM :: (Foldable t, Monad m) => (b -> a -> m b) -> b -> t a -> m b
+    foldlM f z0 xs = foldr f' return xs z0
+      where f' x k z = f z x >>= k
+    ```
+    One possible example is:
+    - `b -> a -> m b` : is a function that test whether `b` satisfied condition `a`. The test result is `m b` which contains both success and failure information.
+    - `b` is the initial input being tested.
+    - `t a` could be a list of condition `a`
+    - `m b` is the final collapsed result of a sequence of test on `t a`.
+
+#### 3.3.Traversable
+|function| constraint|type| define | import |
+|:--:|:--:|:--:|:--:|:--:|
+|`traverse`| `Applicative f`, `(Functor, Foldable, Traversable t)`| `(a -> f b) -> t b -> f (t b)`| `Data.Traversable`|`Prelude`|
+|`mapM`| `Monad m`, `(Functor, Foldable, Traversable t)`| `(a -> m b) -> m b -> m (t b)`| `Data.Traversable`|`Prelude`|
+- The [default](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Traversable.html#mapM) definition is: `mapM = traverse`.
+- The relation between `traverse` and `sequenceA` kind like the relation between `liftA2` and `<*>`. Here is the default definition:
+  ```
+  class (Functor t, Foldable t) => Traversable (t :: * -> *) where
+    ...
+    traverse :: (Applicative f) => (a -> f b) -> t a -> f (t b)
+    traverse f = sequenceA . fmap f
+    ...
+    sequenceA :: (Applicative f) => t (f b) -> f ( t b)
+    sequenceA = traverse id
+  ```
+  In general, it is better to write traverse when implementing Traversable, as the default definition of `traverse` performs, in principle, two runs across the structure (one for fmap and another for sequenceA).
+- `traverse` defines how `Target computation :: a -> b` works on target type `a` in a `Foldable` structure `t`. Meanwhile Context information `f` affect the ultimate result: ` f ( t b)`.
+- Generally, default definition: `mapM = traverse`. in [GHC.Base](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/GHC.Base.html#mapM) `mapM` is specifically defined for `Traversable` list:
+  ```
+  mapM :: Monad m => (a -> m b) -> [a] -> m [b]
+  mapM f as = foldr k (return []) as
+              where
+                k a r = do { x <- f a; xs <- r; return (x:xs) }
+  ```
+|function| constraint|type| define | import |
+|:--:|:--:|:--:|:--:|:--:|
+|`for`|`Applicative f`, `(Functor, Foldable, Traversable t)`| ` t b -> (a -> f b)-> f (t b)`| `Data.Traversable`|`Data.Traversable`|
+|`forM`| `Monad m`, `(Functor, Foldable, Traversable t)`| ` m b -> (a -> m b)-> m (t b)`| `Data.Traversable`|`Prelude`|
+- `for` is 'traverse' with its arguments flipped. 
+- `forM` is 'mapM' with its arguments flipped. 
+ 
+ 
+|function| constraint|type| define | import |
+|:--:|:--:|:--:|:--:|:--:|
+|`sequenceA`| `Applicative f`, `(Functor, Foldable, Traversable t)`| `t (f a) -> f (t a)`| `Data.Traversable`|`Prelude`|
+|`sequence`| `Monad m`, `(Functor, Foldable, Traversable t)`| ` t (m a) -> m (t a)`| `Data.Traversable`|`GHC.Base`|
+- TODO: more intuitive examples
+
+> “underscored” variants, such as sequence_ and mapM_; these variants throw away the results of the computations passed to them as arguments, using them only for their side effects.
+>
+> | [`monad constrained`](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type | define | import|
+> |:--:|:--:|:--:|:--:|
+> |`mapM_`|`(Foldable t, Monad m) => (a -> m b) -> t a -> m ()`| `Data.Foldable`| `Prelude`|
+> |`forM_`|`(Foldable t, Monad m) => t a -> (a -> m b) -> m ()`|`Data.Foldable`|`Data.Foldable`|
+> |`sequence_`|`(Foldable t, Monad m) => t (m a) -> m ()`| `Data.Foldable`| `Prelude`|
 
 
-## Group 4
+> | `Applicative constrained` | type|define | import|
+> |:--:|:--:|:--:|:--:|
+> |`traverse_`| `(Foldable t, Applicative f) => (a -> f b) -> t a -> f ()`|`Data.Foldable` |`Data.Foldable`|
+> |`for_`|`(Foldable t, Applicative f) => t a -> (a -> f b) -> f ()`|`Data.Foldable`|`Data.Foldable`|
+> |`sequenceA_`|`(Foldable t, Applicative f) => t (f a) -> f ()`| `Data.Foldable`| `Data.Foldable`|
+>
+>- This so call `side effects` is the what these functions all about.
+>- All these functions are defined in `Data.Foldable`.
+>- `mapM_` and `sequence_` are exposed by `Prelude`.
+>- TODO: needs more attention and example.
+ 
+#### 3.4. newtype
+  [Mileski twitter example](https://twitter.com/BartoszMilewski/status/1210753654329790464)
+  ```
+  type ListPair a = [(Card,a)]
+  instance Functor ListPair where 
+    fmap f = fmap (bimap id f)
+  
+  > The type synonym 'ListPair' should have one argument but has been given one.
+  > In the instance declaration for 'Functor ListPair'
+  ```
+  The correct definition should be :
+  ```
+  newtype ListPair a = LP {unLP :: [(Card,a)]}
+  instance Functor ListPair where 
+    fmap f = fmap (bimap id f)
+  ```
+  Then wrap and unwrap value of type `ListPair` explicitly.
+
+  - If the function instance declaration with `type` synonym works.
+    ```
+    t :: [(Card,String)]
+    h :: (Card,String) -> a
+    g :: String -> a
+
+    let fh = fmap h t     -- function fh
+    let fg = fmap g t     -- function fg
+    ```
+    the `fmap` in function `fh` is defined in `instance Functor []`
+    the `fmap` in function `fg` is defined in `instance Functor ListPair`
+    In this case what instance will being used is not determined by the type of `t`, it is also determined by the type of `f` (as in `fmap f ` in this example `fg` and `fh`). This can be achieved, however:
+      - most of the time the instance of fmap being used can be determined by the type of `t` only. Checking two palces `t` and `f` is no efficient. 
+      - It is simple to introduce a `newtype` as the wrapper to unify the place that contains information about instance will being used. ( in `t` only) 
+
+## TODO
+- draw a relation graph of these useful operations above
+- Intuition and examples of these operations above.
+- relation between `Monad` and `Applicative + Alternative`
+  ```
+  ∗ Actually, because Haskell allows general recursion, one can recursively construct infinite grammars, and hence Applicative (together with Alternative) is enough to parse any context-sensitive language with a finite alphabet. See Parsing context-sensitive languages with Applicative.
+  ```
+  How is this work ?
+- finish `foldr` and `foldl`
+-  more examples of traverse/mapM , foldMap, fold, foldM, sequenceA/sequence. Based on not only list, but also `Data.Tree`
+
+## Section 4
 - MonadTrans
 - MonadIO
 - MonadFail

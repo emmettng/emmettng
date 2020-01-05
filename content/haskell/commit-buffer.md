@@ -5,17 +5,17 @@ draft: true
 ---
 
 ### 0.Content 
-| [`on monads`](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type | `on Applicative` | type|
+`:: (Functor t, Foldable t, Traversable t) => `
+| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|
 |--:|:--|--:|:--|
-|`return`| `:: a -m a`|`pure`|`:: a -> f a`|
-|`liftM2`||`liftA2`||
-|`mapM`||`traverse`||
-|`sequence`||`sequenceA`||
-|`forM`||`for`||
-|`mapM_`||`traverse_`||
-|`forM_`||`for`_||
-|`sequence_`||`sequenceA_`||
-
+|`return`| `a -m a`|`pure`|`a -> f a`|
+|`liftM2`|`(a -> b -> c) -> m a -> m b -> m c`|`liftA2`|`( a -> b -> c) -> f a -> f b -> f c`|
+|`mapM`|`(a -> m b) -> t a -> m (t b)`|`traverse`|`(a -> f b) -> t a -> f (t b)`|
+|`forM`|`t a -> (a -> m b) -> m (t b)`|`for`| `t a -> (a -> f b) -> f (t b)`|
+|`sequence`|`t (m a) -> m ( t b)`|`sequenceA`|`t (f b) -> f ()`|
+|`mapM_`|`(a -> m b) -> t a -> m ()`|`traverse`|`(a -> f b) -> t a -> f ()`|
+|`forM_`|`t a -> (a -> m b) -> m ()`|`for`| `t a -> (a -> f b) -> f ()`|
+|`sequence_`|`t (m a) -> m ()`|`sequenceA`|`t (f b) -> f ()`|
 ### 1.Applicative and Monad
 |function| constraint|type| define | import |
 |:--:|:--:|:--:|:--:|:--:|:--:|
