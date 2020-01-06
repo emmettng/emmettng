@@ -20,7 +20,7 @@ it is Foldable means:
 - foldMap and foldr can define each other with above semantics. 
 
 TODO: 
-unifiy the definition of foldMap with respect to List and Tree. 
+unify the definition of foldMap with respect to List and Tree. 
 
 Real word structure 
 1. [] as instance of Foldable, foldr instead of foldMap
