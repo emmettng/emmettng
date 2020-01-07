@@ -104,21 +104,22 @@ typeClass Foldable  where
 >   Assume function `f :: Monoid m => a -> m`, if we take the first expansion of List `L` and Tree `T`, because `+` means `or`, therefore:
 >>  - `foldMap f L -> m <> m <> m <> m ...`
 >>  - `foldMap f T -> m <> m <> m <> m ...`
->   The computation `foldMap f L` are essentially the same as `foldMap f T`, except:
->   1. When `L` is empty `foldMap f L = mempty`.
->       ```
->       foldMap f = foldr (mappend . f) mempty
 >
->       foldr k z = go
->             where
->               go []     = z
->               go (y:ys) = y `k` go ys
->       ```
->   2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
+>>   The computation `foldMap f L` are essentially the same as `foldMap f T`, except:
+>>    1. When `L` could be empty, then: `foldMap f L = mempty`.
+>>        ```
+>>        foldMap f = foldr (mappend . f) mempty
+>>
+>>        foldr k z = go
+>>              where
+>>                go []     = z
+>>                go (y:ys) = y `k` go ys
+>>        ```
+>>    2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
 
 ### Summary
-- `List` and `Tree` as the instance of `Foldable` are equivalent up to the definition of `foldMap` (except for foldMap over empty list). More generally speaking, all `Product Type` are essentially the same when being instance of `Foldable`.
-- This make sense, because a `typeclass` reflects only one particular aspect of a given type. In other words, it defines some common property of many types which may contains more information but will be ignored when being treated as a `instance` of this `typeclass`.
+- `List` and `Tree` as instances of `Foldable` are equivalent up to the definition of `foldMap` (except for foldMap over empty list). More generally speaking, all `Product Type` are essentially the same when being instance of `Foldable`.
+- This make sense, because a `typeclass` reflects only one particular aspect of a given type. In other words, it defines some common property of many types which may contains more information but could be ignored when being treated as a `instance` of this `typeclass`.
  
 Theoritically Speaking 
 1. List and Tree as the algibraic datatype. 
