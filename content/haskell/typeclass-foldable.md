@@ -27,6 +27,15 @@ Real word structure
 2. Tree as instance of Foldable, foldMap instead of foldr
 3. How these function export and defined.
 
+```
+foldComposing :: (a -> (b -> b)) -> [a] -> Endo b
+foldComposing f = foldMap (Endo . f)
+
+foldr :: (a -> b -> b) -> b -> t a -> b
+foldr f z t = appEndo (foldMap (Endo #. f) t) z
+```
+these `Endo . f` doesn't has to be evaluated in any particular order.
+
 TODO:
 - start from the Endo explination [wikibook](https://en.wikibooks.org/wiki/Haskell/Foldable) + list replace intuition [youtube](https://www.youtube.com/watch?v=t9pxo7L8mS0)
 - Generalize to the understanding of other data type, such as [Data.Tree](https://hackage.haskell.org/package/containers-0.6.2.1/docs/src/Data.Tree.html#Forest)
