@@ -250,7 +250,7 @@ instance (Monad m) => Monad (MaybeT m) where
   - Summarize [RWST](http://hackage.haskell.org/package/transformers-0.2.2.0/docs/src/Control-Monad-Trans-RWS-Lazy.html)
 
 
-## Section 1
+## Section 1. Transform within the same type
 `Semigroup` and `Monoid` represent  `type :: a` and `an operation :: a -> a -> a` on that `type`.
 
 #### docs
@@ -371,7 +371,7 @@ Several classes have `monoidal subclass` to model computation that support `fail
 
 
 
-## Section 3
+## Section 3: Utility Functions
 #### 3.0.Content 
 `:: (Functor t, Foldable t, Traversable t) => `  
 
