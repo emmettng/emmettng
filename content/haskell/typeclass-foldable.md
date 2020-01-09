@@ -5,13 +5,13 @@ draft: true
 ---
 ### Reading List
 - [Haskell wikibook: Foldable](https://en.wikibooks.org/wiki/Haskell/Foldable)
-- [Youtube tutorial](https://www.youtube.com/watch?v=t9pxo7L8mS0)
+- [Youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
 
 ## Parametric Type : `t a`
 - Target type : `a`
 - Context type : `t`
   
-## Intuition for ADT Understanding
+## Intuition based on Algebraic Data Type
 > This section needs more theoretical backup.\
 > Jump to `Intuition for Real World Implementation` for recap.
 
@@ -200,7 +200,7 @@ draft: true
         > flatten t7
             [7,5,1,2,6,3,4]
         ```
-        So We could construct a `List a` from `Tree a` based on `foldr` using `(:)` to replace `*` and use `[]` to terminate aggregated function of type ` [] -> []`.
+        So We could construct a `List a` from `Tree a` based on `foldr` using `(:)` to replace `*` and use `[]` to terminate aggregate function of type ` [] -> []`.
         ```
         instance Foldable Tree where
             ...
@@ -211,11 +211,11 @@ draft: true
         flatten t = squish t []
             where squish (Node x ts) xs = x:Prelude.foldr squish xs ts
         ```
-        TODO: Why is this `flatten` better than `foldr` version above.
+
 
 3. **`foldr`** Generalized Iintuition. 
     - More than one value in `Parametric Type :: t a` **means** t is or wrapping a product type `a*a*...*a`.
-    - Being instance of `Foldable` **means** `t` only implies the existence of `a*a...*a`. All other information such as structure information of `Tree`, `List` are irrelevant.
+    - Being instance of `Foldable` **means** `t` only implies the existence of `a*a...*a`. All other information such as structure information of being `Tree` or `List` are irrelevant.
     - `foldMap` is the basic function that replace `a` with `Monoid m`; replace `*` with `<>`.
     - `foldr` is an extension of `foldMap`. It equivalent to 
       - Treat `t a` of any type as `List t`.
@@ -226,3 +226,7 @@ draft: true
 4. **Summary**\
     For a parametric type `'t a'` being an instance of `Foldable` means we could use `foldMap` or `foldr` to **fold** value(s) of target type `a`. So basically `t a` is `Foldable` when it is an instance of `Foldable`.\
     Pretty self-explanatory.
+
+##TODO: 
+ 1. Why is this `flatten` in `Data.Tree` better than `foldr` version above.
+ 2. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
