@@ -200,15 +200,24 @@ Intuition:
     - `p1list` and `p2list` zip together produces the target input of type `[(Int,Int)]`.
     - The target transform is `(Int,Int) -> Int`. Which is `s = e1 + e2`.
     - Usually we use `map` or `fmap (<$>)` to lift this transform so it works in the `[]` container.
+        ```
+        [(1,2),(2,4),(3,6)...(10,20)] -> [3,5,9,...,30]
+        fmap (Int,Int) -> Int   [...]
+        ```
 - Context Semantics: 
     - We want to log some information for each `target transform` of the element.
     - Accumulate the sum of the first list and second list respectively.
     - So define `LoggingType` as the instance of `Semigroup` and `Monoid`.
     - The logging information is `LoggingType e1 e2`.
+        ```
+        [(1,2),(2,4),(3,6)...(10,20)] -> [3,5,9,...,30]
+        mapM (Int,Int) -> Writer LoggingType Int   [...]
+        ```
 - This newly Context sensitive transform `createLog` need to cooperate with `mapM` instead of `map`.
 - The Target Operation and Context Operation would more clear if we rewrite `createLog` as:
-    > ```
-    > createLog (e1,e2) = do
-    >   tell $ LoggingType e1 e2      -- tell : Context Operation
-    >   pure $ e1 + e2                -- pure : Target Operation
-    > ```
+     ```
+     createLog (e1,e2) = do
+       tell $ LoggingType e1 e2      -- tell : Context Operation :: LoggingType
+       pure $ e1 + e2                -- pure : Target Operation :: Int
+     ```
+- `pure` is always about bring value of `target type` into this `Computation Context`

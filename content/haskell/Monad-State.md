@@ -71,7 +71,7 @@ put :: (Monad m) => s -> StateT s m ()
 put s = state $ \ _ -> ((), s)
 ```
 
-### return
+### return / pure
 - combine the computation result `a` together with whatever `s` is.
 ```
 instance (Monad m) => Monad (StateT s m) where
@@ -198,3 +198,14 @@ sFunc :: String -> (Int, String)
 > r
 (43,"1.8181819_20_emmettng_1.8181819_20_emmettng")
 ```
+
+Intuition:\
+`State String Int`
+- **Explicitly `Int` :** Target Operations include:
+    - `s1 :: Int -> Float` , `s2 :: Float -> String`, `s3 :: String -> Int`
+    - These transformation composed together as `Int -> Int`
+- **Implicitly `State String`:** Context Semantics: 
+    - There is an extra piece of information of type `String` involved in these transformations. SO,  `s1 :: Int -> String -> Float`. 
+    - Furthermore, the value of `String` might be updated and pass to the following function: `s1 :: Int -> String (Float,String)`, so the same as `s2` and `s3`.
+
+- `return`/`pure` is always about bring value of `target type` into this `Computation Context`.

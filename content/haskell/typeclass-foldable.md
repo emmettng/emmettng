@@ -222,11 +222,13 @@ draft: true
       - Replace `Con` with `f`.
       - Replace `Nil` with `z`.
     - Values of target type `a` got folded.
+    - Foldable includes the toList :: Foldable t => t a -> [a] method. That means any Foldable data structure can be turned into a list [[haskell wikibook]](https://en.wikibooks.org/wiki/Haskell/Foldable#List-like_folding) 
  
 4. **Summary**\
     For a parametric type `'t a'` being an instance of `Foldable` means we could use `foldMap` or `foldr` to **fold** value(s) of target type `a`. So basically `t a` is `Foldable` when it is an instance of `Foldable`.\
     Pretty self-explanatory.
 
-##TODO: 
+## TODO: 
  1. Why is this `flatten` in `Data.Tree` better than `foldr` version above.
  2. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
+ 3. [foldM](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de) and  [hackage foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM) needs more intuitive explication.
