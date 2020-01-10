@@ -228,7 +228,86 @@ draft: true
     For a parametric type `'t a'` being an instance of `Foldable` means we could use `foldMap` or `foldr` to **fold** value(s) of target type `a`. So basically `t a` is `Foldable` when it is an instance of `Foldable`.\
     Pretty self-explanatory.
 
+## Others 
+### **1. [foldM](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de) and  [hackage foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM)**
+
+|function| constraint|type| define | import |    
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|`foldrM`| `Monad m, Foldable t`| `(a -> b -> m b) -> b -> t a -> m b`| `Data.Foldable` | `Data.Foldable`|
+|`foldlM`| `Monad m, Foldable t`| `(b -> a -> m b) -> b -> t a -> m b`| `Data.Foldable` | `Data.Foldable`|
+|`foldM`| `Monad m, Foldable t`| `(b -> a -> m b) -> b -> t a -> m b`| `Control.Monad (=foldlM)` | `Control.Monad`|
+
+**Starts from `foldr`**
+>- Assuming we need a function of type:
+> `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
+> Usually it means we have:
+> 1. a function: `f :: ( a -> b -> m b) `
+> 2. a List or Tree: ` xs :: t a`
+> 3. an initial value: `z :: b`
+
+>- One step further:
+> Usually, we map `f` on `xs`. 
+> `f <$> xs` get a list of functions: `[(b -> m b), ( b -> m b) ...]`
+
+>- Now we have 
+>> 1. an initial value: `z :: b`
+>> 2. a list functions: `[(b -> m b), ( b -> m b) ...]`
+>
+>>And we want a value of type ` m b`.
+
+>- One more step further:\
+> The reasonable and minimal information required operation is combine the `initial value` and a `list of function` with `>>=`. Like this: \
+> ` m b >>= ( b-> m b) >>= ( b -> m b) ... `
+
+> NOW
+>> 1. we have a list of functions of type `[f1, f2,..., fn ] :: [(b ->m b), (b -m b), ...]`.
+>> 1. we know it combine like this ` m b >>= (b -> m b) >>= (b -> m b)`. But:
+>>  - `mb >>= f1 >>= f2 >>= ...  >>= fn`
+>>  - `mb >>= fn >>= ... >>= f2 >>= f1`
+> - WHICH?
+
+> fold from right `mb >>= fn >>= ... >>= f2 >>= f1`
+> fold from left `mb >>= f1 >>= f2 >>= ...  >>= fn`
+
+> This is about `foldr`
+> - replace `a` with `f`
+> - replace `<>` with `.`
+> - `<=<` keeps the composition order.
+```
+> let c = (return <=<) . (return <=<)
+> :info c
+c :: Monad m => (a -> m c) -> a -> m c
+  	-- Defined at <interactive>:11:5
+> let c = (return >=>) . (return >=>)
+> :info c
+c :: Monad m => (b -> m c) -> b -> m c
+  	-- Defined at <interactive>:13:5
+> :info (<=<)
+(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
+  	-- Defined in ‘Control.Monad’
+infixr 1 <=<
+> :info (>=>)
+(>=>) :: Monad m => (a -> m b) -> (b -> m c) -> a -> m c
+  	-- Defined in ‘Control.Monad’
+
+Prelude GHC.Base Control.Monad> :info (.)
+(.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
+infixr 9 .
+Prelude GHC.Base Control.Monad> :info (<=<)
+(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
+  	-- Defined in ‘Control.Monad’
+infixr 1 <=<
+
+```
+[stackoverflow question](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de)
+```
+(b -> m b) -> (b -> m b) -> (b -> m b) -> ( b -> m b) -> t ( b -> m b) - (b -> m b) 
+= foldr <=< return (f <$> xs) 
+= foldMap <=< (f<$>xs) $ return
+```
+> TODO: all information above, needs more intuitive organization.
+
+
 ## TODO: 
  1. Why is this `flatten` in `Data.Tree` better than `foldr` version above.
  2. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
- 3. [foldM](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de) and  [hackage foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM) needs more intuitive explication.
