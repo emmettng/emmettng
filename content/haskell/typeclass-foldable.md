@@ -142,11 +142,18 @@ draft: true
   ```
   1. `appEndo (foldMap (Endo . f) t)` 
       This operation 
-      1. Replace ever `a` in `t` with a wrapped function `b -> b`.
-      2. Compose these functions together to have one function of type `b -> b`.
-        ```
-        newtype Endo a = Endo {appEndo :: a -> a}
-        ```
+      1. Replace ever `a` in `t` with a wrapped function `b -> b`
+      1. Compose these functions together to have one function of type `b -> b`.
+            ```
+            newtype Endo a = Endo {appEndo :: a -> a}
+            ```
+      1. The type of function composition is
+            ```
+            Prelude GHC.Base Control.Monad> :info (.)
+            (.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
+            ```
+            This means the first element of `t a` that starts affect the value of `b` is the right most element, then the one next to it. This is what the `r` in `foldr` means. 
+
   2. Then apply this function of type `b -> b` on `z` to get the final output `b`.
   3. Because a parametric type `t a` can be rewrite into `a*a*a*a` when being treated as an instance of `Foldable`. So a list is just:
      - ``` foldr (:) [] [1,2,3,4] ```
@@ -238,6 +245,17 @@ draft: true
 |`foldM`| `Monad m, Foldable t`| `(b -> a -> m b) -> b -> t a -> m b`| `Control.Monad (=foldlM)` | `Control.Monad`|
 
 **Starts from `foldr`**
+1. The semantics of `foldr` is:
+    - `t a` is a collection of elements with the same type `a`.
+    - a function `f ` of type `a -> b -> b`
+    - a single element of type `b`.
+    - `foldrl :: (Foldable t) => (a -> b -> b) -> b -> t a -> b`:  
+        > each element of `t a` contribute a piece of information to a element of type `b` through function `f`.
+    - `fold` treat all structure `t` equally as a `List`.
+    - `foldr` indicates that we retrieve element of `t a` from the right side of the list `t a`.
+
+1. The semantics of `foldrM` is:
+
 >- Assuming we need a function of type:
 > `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
 > Usually it means we have:
@@ -254,6 +272,14 @@ draft: true
 >> 2. a list functions: `[(b -> m b), ( b -> m b) ...]`
 >
 >>And we want a value of type ` m b`.
+> It's `t ( b -> m b) -> b -> m b`
+
+I think this can be rewritten like this:
+> It's `t ( b -> m b) -> (b -> m b)`
+```
+tb:: t (b -> m b)
+foldr (=<<) pure tb :: b -> m b
+```
 
 >- One more step further:\
 > The reasonable and minimal information required operation is combine the `initial value` and a `list of function` with `>>=`. Like this: \

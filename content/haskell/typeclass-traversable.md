@@ -12,9 +12,13 @@ draft: true
 
 >  `To traverse means to walk across, and that is exactly what Traversable generalises: walking across a structure, collecting results at each stop.`
 
-Two key concepts:
-1. `collecting`
-2. `each stop`
+`t a` is a collection of values of the same type `a`. `t` contains the 
+structure information about how these values is organized.
+
+Three key concepts:
+1. `structure`: The got preserved
+1. `collecting`: Compute the transformed values in the Applicative context.
+1. `each stop`: Above computation is organized as the unit of a list.
 
 
 - `collection` means `foldr`
