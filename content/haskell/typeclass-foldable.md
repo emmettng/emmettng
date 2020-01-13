@@ -159,7 +159,7 @@ draft: true
      - ``` foldr (:) [] [1,2,3,4] ```
      - `[1,2,3,4]`, `(1,2,3,4)` contains the same amount of information.
      - Replace as described above will get ``` (1:(2:(3:(4:[])))) ```. It could also be written as ```(Con 1 (Con 2 (Con 3 (Con 4 []))))```
-     - `[]` is the `List` type terminator.
+     - `[]` is the `List` type terminator of type `[]`.
   4. [`foldr`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldr) and [`foldMap`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldMap) can define each other.
         ```
         foldMap :: Monoid m => (a -> m) -> t a -> m
@@ -236,7 +236,7 @@ draft: true
     Pretty self-explanatory.
 
 ## Others 
-### **1. [foldM](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de) and  [hackage foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM)**
+### **1. [foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM)**
 
 |function| constraint|type| define | import |    
 |:--:|:--:|:--:|:--:|:--:|:--:|
@@ -251,7 +251,7 @@ draft: true
     - a single element of type `b`.
     - `foldrl :: (Foldable t) => (a -> b -> b) -> b -> t a -> b`:  
         > each element of `t a` contribute a piece of information to a element of type `b` through function `f`.
-    - `fold` treat all structure `t` equally as a `List`.
+    - `Foldable` treat all structure `t` equally as a `List`.
     - `foldr` indicates that we retrieve element of `t a` from the right side of the list `t a`.
 
 1. The semantics of `foldrM` is:
@@ -279,6 +279,10 @@ I think this can be rewritten like this:
 ```
 tb:: t (b -> m b)
 foldr (=<<) pure tb :: b -> m b
+```
+```
+tb:: t (b -> m b)
+foldr (<=<) pure tb :: b -> m b
 ```
 
 >- One more step further:\
@@ -337,3 +341,46 @@ infixr 1 <=<
 ## TODO: 
  1. Why is this `flatten` in `Data.Tree` better than `foldr` version above.
  2. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
+
+foldr + fmap vs foldrM
+```
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :{
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable| let wf a b = do 
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable|             tell $ show b
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable|             pure $ a*b
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable| :}
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let tl = [1,2,3,4]
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let tm = wf <$> tl
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info wf
+wf :: (Monad m, Show b, Num b) => b -> b -> WriterT String m b
+  	-- Defined at <interactive>:158:5
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info tm
+tm :: (Monad m, Show b, Num b) => [b -> WriterT String m b]
+  	-- Defined at <interactive>:163:5
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let p1 f = foldr (=<<) f tm
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info p1
+p1 ::
+  (Monad m, Show a, Num a) =>
+  WriterT String m a -> WriterT String m a
+  	-- Defined at <interactive>:166:5
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let r1 = p1 $ writer (1,"")
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr1 <- runWriterT r1
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr1
+(24,"141224")
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let p2 = foldrM wf 1 tl
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info p2
+p2 :: (Monad m, Show b, Num b) => WriterT String m b
+  	-- Defined at <interactive>:171:5
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr2 <- runWriterT p2
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr2
+(24,"141224")
+```
+
+
+How to rewite foldM in the form of foldr + fmap
+```
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let pl = foldM wf 1 tl 
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> l <- runWriterT pl
+*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> l
+(24,"1234")
+```
