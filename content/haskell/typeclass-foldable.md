@@ -32,7 +32,7 @@ draft: true
     ```
     typeClass Foldable  where 
         ...
-        foldMap :: Monoid m => (a -> m) -> t a -> m`
+        foldMap :: Monoid m => (a -> m) -> t a -> m
         ...
     ```
 
