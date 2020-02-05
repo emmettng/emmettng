@@ -15,7 +15,7 @@ draft: false
 > 7. Modeling and Testing.     
 > 8. Scheduled task development and test.
 
-## B. Problems of **A**
+## B. Problems of A  
 
 - It never happen in that order.
 - The requirements of our end-users could be paradoxical and the first version narrative has never been the same as what actually need to be done eventually. 
