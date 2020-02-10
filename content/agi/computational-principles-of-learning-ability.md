@@ -4,7 +4,20 @@ date: 2019-10-28T12:29:44+08:00
 draft: false
 ---
 
-> Define the world so we know what the problem could be.
+> Define the world so we know what other players could be.
+
+## Don't be smart 
+ **Smart** usually indicates the ability of identifying causal relation. Someone is smart if he could solve difficult problems or make accurate predictions, presumably. 
+ 
+Recent **AI** researchers and companies tend to emphasise on how smart their algorithms or systems could be. It implies that a system is biological similar to human only if it could be as smart as human. They developed algorithms that could help us solve many complex problems effectively and sometimes it exceed human performance significantly. The only problem is **we are not smart**. Being smart is not an essential constituent of human beings. 
+
+Most people, at most of the time, are astonishingly stupid. We are looking for patterns all the time and most of these patterns has absolutely nothing to do with causal relation or could only be effective within very limit domain. 
+
+We are good at learning patterns comparing with other species. But only a small proportion of patterns represent causal relations and learning patterns is different from identifying causalities. In fact, during the past tens of thousands of years history of Homo Sapiens, we had not developed a efficient way of identifying causal relation until the most recent couple of hundred years.
+
+Being smart is a high level function, it is a result of composing pattern learning, intention, memory, imagination and many other lower level abilities. I believe that the pattern learning ability is one of many foundational abilities of human(biological) level intelligence.
+
+The way we learn pattern is different from many typical pattern learning algorithms. In this document I will discuss some unique properties that is necessary for a system to reach human(biological) level learning ability.
 
 ## No Free Lunch
 ```
