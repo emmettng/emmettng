@@ -5,8 +5,6 @@ draft: false
 ---
 > This summary follows the minimum useable principle.
 
-# Reader
-
 #### Path 
 - [Learn you a haskell](http://learnyouahaskell.com/for-a-few-monads-more)
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)

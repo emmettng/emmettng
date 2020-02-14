@@ -4,7 +4,7 @@ date: 2019-12-24T10:58:12+08:00
 draft: true
 ---
 
-### Reading list 
+### Readings
 
 - **basic**
   - [typeclass wiki](https://wiki.haskell.org/Typeclassopedia) : Worth reading every couple of weeks.
@@ -20,18 +20,18 @@ draft: true
   1. The effect of local modification is predictable.
   1. Business requirement (Functionality) could be organized or analysed by manipulating meaningful type description.
 - An application can be factorized into two parts:
-  1. A computational chain that is also a type transformation that focus on `Target type`s from ` a -> b -> c -> d -> ... -> z`.
-  2. This computational chain constantly switch among different `Computational Context`s, `T1` to `T2` to `T2 ...`
+  1. A ***Computational Chain*** that is also a type transformation that focus on `Target type`s from ` a -> b -> c -> d -> ... -> z`.
+  2. This computational chain constantly switch among different ***Computational Contexts***, `T1` to `T2` to `T2 ...`
 
 ## Parametric Types
 >**Every piece of information matters in its own way.**
 
-1. `Type Constructor` defines global representation of a `type`.
+1. `Type Constructor` defines `global representation` of a `type`.
 2. `Type Constructor` may has 
-    - ***Zero*** argument (`a`): Then the global representation carries all information of this type .
-    - ***More*** arguments (`T a`): Then the global representation consists of 
-      - `Target type 'a' ` 
-      - `Context type 'T' `
+    - ***Zero*** argument (`a`): Then the `global representation` carries all information of this type .
+    - ***More*** arguments (`T a`): Then the `global representation` consists of 
+      - `a` : can be treated as the `Target type` 
+      - `T` : can be treated as the `Context type`
 ```
 Example:
 
@@ -44,32 +44,24 @@ data Tree a = Tip | Node a (Tree a) (Tree a)
 
 Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on the transform of `target types`. Each computation focus on **One target type at a time**. AND:
 
-- ***Target Type*** : Carries information type we mainly care about. So reasoning behaviour of target computational chain would be easy.
-- ***Context Type***: Represent how target information being organized( data structure) or how target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
-```
-Example:
+- ***Target Type*** : Carries information type we care about. So reasoning behaviour of the target computational chain would be easy.
+- ***Context Type***: This extra piece of information is a wrapper of the target information `a`. It could be used to 
+  1. Represent how target information being organized( data structure) 
+  1. How target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
+  1. Wrap existing type for specific purpose. This context is also a global representation of this newly defined type.
 
-data Tree a = Tip | Node a (Tree a) (Tree a)
-data List a = Nil | Cons a (List a)
-```
 -  Different ***Context Type*** indicates different data structure based on `a`. ( when **Target Type** be the same `a`)
 
-```
-Example: 
+    ```
+    Example:
+    
+    data Tree a = Tip | Node a (Tree a) (Tree a)
+    data List a = Nil | Cons a (List a)
+    ```
 
-instance (Functor m) => Functor (WriterT w m) where
-    fmap f = mapWriterT $ fmap $ \ ~(a, w) -> (f a, w)
-
-instance (Monoid w, Monad m) => Monad (WriterT w m) where
-    ...
-    m >>= k  = WriterT $ do
-        ~(a, w)  <- runWriterT m
-        ~(b, w') <- runWriterT (k a)
-        return (b, w `mappend` w')
-```
 - Being the instance of different typeclasses, one ***Context Type*** could carries different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
   
-  [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
+      [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
 
   - `functor` + `Writer` ==> `Writer` is a container in this case.
   - `Monad` + `Writer` ==> `Writer` is a computational context relies on `Monoid` type to accumulate( `mappend`) some extra `logging` information `w`.
@@ -88,47 +80,51 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
         ~(b, w') <- runWriterT (k a)
         return (b, w `mappend` w')
   ```
-- `Context Type` could also be used to introduce a piece of extra information for avoiding being ambiguous. 
+- `Context Type` as a wrapper of existing type could be used for specific purpose and avoiding being ambiguous. 
   
-  example:
+      example:
  
-  `(,)` and `Writer` are equal up to isomorphism.
-  ```
-      > type P = forall a. ((,)a)
-      > :info P
-      type P = forall a. (,) a :: * -> *
-  ```
-  ```
-    newtype Writer m a = Writer {runWriter :: (a , w)}
-  ```
-  They contain equal amount of information. The `Writer` part in `newtype Writer` is being used to identify possible different instance of the same `typeclass`.
-  example:
-    ```
-    instance Monoid a => Applicative ((,) a) where
-      pure x = (mempty, x)
-      (u, f) <*> (v, x) = (u <> v, f x)
-      liftA2 f (u, x) (v, y) = (u <> v, f x y)
+      `(,)` and `Writer` are equal up to isomorphism.
+      ```
+          > type P = forall a. ((,)a)
+          > :info P
+          type P = forall a. (,) a :: * -> *
+      ```
+      ```
+        newtype Writer m a = Writer {runWriter :: (a , w)}
+      ```
+      They contain equal amount of information. The `Writer` part in `newtype Writer` is being used to identify possible different instance of the same `typeclass`.
 
-    instance (Monoid w) => Applicative (Writer w ) where
-      pure a  = Writer $ (a, empty)
-      f <*> v = Writer $ k f v
-            where k (a, w) (b, w') = (a b, w `append` w')
-    ```
-  Both being instance of `Applicative` with same context semantics, `(,)` relies on the `first` element of being `Monoid` type, `Writer` relies on the `second` element of being a `Monoid` type.
+      example:
 
-***Therefore, haskell enable us to factorize target `computational chain` out of `computational context`.***
+        ```
+        instance Monoid a => Applicative ((,) a) where
+          pure x = (mempty, x)
+          (u, f) <*> (v, x) = (u <> v, f x)
+          liftA2 f (u, x) (v, y) = (u <> v, f x y)
 
-So the reasoning of a long `computation chain` would be valid.
+        instance (Monoid w) => Applicative (Writer w ) where
+          pure a  = Writer $ (a, empty)
+          f <*> v = Writer $ k f v
+                where k (a, w) (b, w') = (a b, w `append` w')
+        ```
+      Both being instance of `Applicative` with same context semantics, `(,)` relies on the `first` element of being `Monoid` type, `Writer` relies on the `second` element of being a `Monoid` type. 
 
-A functional application is just a composition of `computational chains` of different `computational context`.
+***Parametric types is the foundation*** of decomposing an application into `computational chain` and `computational context` factors.***
 
-## Section 0. `Computation Context`
+A functional application is just a recomposition of `computational chains` of different `computational context`.
 
-|**Computation Context**|  
-|:--:|
-|**Parametric type** X **Typeclasses** = **Computation Context**|
+Category theory and haskell guarantee that the behaviour of recomposing a long `computation chain` would be predicable. 
 
-Three common `Typeclass`es, that being used to define how `f` could affect the target computation `a -> b`.
+> **Predictable** does not implies good implementation. There are design principles and design patterns for functional programming that we need to follow for achieving scalability and maintainability. 
+
+## Section 0. `Computational Context`
+
+
+> **Parametric type** X **Typeclasses** = **Computational Context**
+
+Three common `Typeclass`es, that being used to define how, a context type `f`, could affect the target computation `a -> b`.
+
 | `typeclass`| `main function`| `function type`|
 |:--:|:--:|:--:|
 |`Functor`| `<$>`| `(a -> b) -> f a -> f b`|
@@ -146,7 +142,7 @@ The second part of these three functions are all the same:
 Intuitively, these three functions are about how to transform different mapping relations (in `1`) into context sensitive mapping `f a -> f b`. So that we could compose functions of the same `Context Semantics`.
 
 
-When `f a` is a certain `Parametric Type`, it could indicate a specific `Computation Context` of a specific `Context Semantics`.
+When `f a` is a certain `Parametric Type`, it could indicate a specific `Computational Context` with a specific `Context Semantics`.
 
 |**Parametric types**:|  List | Product    |Sum   |  Exponential |   
 |:--|:--|:--:|:--:|:--:|:--:|
@@ -253,7 +249,7 @@ instance (Monad m) => Monad (MaybeT m) where
 ## Section 1. Transform within the same type
 `Semigroup` and `Monoid` represent  `type :: a` and `an operation :: a -> a -> a` on that `type`.
 
-#### docs
+#### Readings
 - [schoolofhaskell](https://www.schoolofhaskell.com/user/mgsloan/monoids-tour)
 
 ### 1. Semigroup ***[Data.Semigroup](https://hackage.haskell.org/package/base-4.9.0.0/docs/Data-Semigroup.html)***
@@ -375,9 +371,9 @@ Several classes have `monoidal subclass` to model computation that support `fail
 #### 3.0.Content 
 `:: (Functor t, Foldable t, Traversable t) => `  
 
-| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|      
+| [`on monads `](https://hackage.haskell.org/package/base-4.12.0.0/docs/src/Control.Monad.html) | type `:: Monad m =>` | `on Applicative :: Applicative f` | type ` :: Applicative f =>`|
 |:--:|:--:|:--:|:--:|  
-|`return`| `a -m a`|`pure`|`a -> f a`|    
+|`return`| `a -> m a`|`pure`|`a -> f a`|    
 |`liftM2`|`(a -> b -> c) -> m a -> m b -> m c`|`liftA2`|`( a -> b -> c) -> f a -> f b -> f c`|   
 |`mapM`|`(a -> m b) -> t a -> m (t b)`|`traverse`|`(a -> f b) -> t a -> f (t b)`|  
 |`forM`|`t a -> (a -> m b) -> m (t b)`|`for`| `t a -> (a -> f b) -> f (t b)`|  

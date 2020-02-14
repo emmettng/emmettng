@@ -4,12 +4,12 @@ date: 2019-10-28T12:29:44+08:00
 draft: false
 ---
 
-> Define the world so we know what other players could be.
+> Define the world so that it can be understood by biological creatures autonomously .
 
 ## Don't be smart 
  **Smart** usually indicates the ability of identifying causal relation. Someone is smart if he could solve difficult problems or make accurate predictions, presumably. 
  
-Recent **AI** researchers and companies tend to emphasise on how smart their algorithms or systems could be. It implies that a system is biological similar to human only if it could be as smart as human. They developed algorithms that could help us solve many complex problems effectively and sometimes it exceed human performance significantly. The only problem is **we are not smart**. Being smart is not an essential constituent of human beings. 
+Recent **AI** researchers and companies emphasise on how smart their algorithms or systems could be. They developed algorithms that could help us solve many complex problems effectively and sometimes it exceed human performance significantly. Many believe that a system is possessing human level intelligence if it could be as smart as human. This assumption indeed guide us developed many useful tricks. The only problem is **we are not smart**. Being smart is not an essential constituent of human beings. 
 
 Most people, at most of the time, are astonishingly stupid. We are looking for patterns all the time and most of these patterns has absolutely nothing to do with causal relation or could only be effective within very limit domain. 
 

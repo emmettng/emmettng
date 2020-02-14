@@ -43,6 +43,7 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
 - Context type : `Writer m` or `WriterT w m`
     - **Explicitly** : transformation among `target types :: a -> b -> c`.
     - **Implicitly** : Aggregate `logging` information of type `w` during the target types transformation.
+    
 > - There is a type `b`.
 > - There is a function (`:: a -> b`) from `a` to `b`.
 > - Many functions ` a -> b` , `b -> c` ... `y -> z` many compose as a transformation from `a -> z`.
@@ -195,7 +196,9 @@ Check in ghci:
 > totalLog 
 WriterT (Identity ([3,6,9,12,15,18,21,24,27,30],LoggingType {partOne = 55, partTwo = 110}))
 ```
+
 Intuition:
+
 - Target Operation:
     - `p1list` and `p2list` zip together produces the target input of type `[(Int,Int)]`.
     - The target transform is `(Int,Int) -> Int`. Which is `s = e1 + e2`.
