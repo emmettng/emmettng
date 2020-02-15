@@ -1,7 +1,7 @@
 ---
 title: "Typeclass: Foldable"
 date: 2020-01-06T00:34:46+08:00
-draft: true
+draft: false
 ---
 # Foldable
 
@@ -290,7 +290,7 @@ draft: true
 > now the type is :
 > ` t (b -> m b) -> ( b -> m b)`
 > it is basically turn `[(b -> m b), ( b -> m b) ..., (b -> m b)]` to ` b -> m b`
-> **Semantics of foldM**: bind these monadical computation together. 
+> **Semantics of foldM**: bind these monadic computation together. 
 
 > - 3 step further: 
 > **HOW**
@@ -308,40 +308,41 @@ draft: true
 >> >`foldrM f z xs = foldr (<=<) pure (f <$> xs) $ z`
 >
 >Example:
-```
-* >import Control.Monad.Trans.Writer    -- Use Wirter Monad in this example.
-* >import Control.Monad                 -- import (<=<)
-* >import Data.Foldable                 -- import foldr, foldrM, etc.
+>
+>```
+>*>import Control.Monad.Trans.Writer    -- Use Wirter Monad in this example.
+>*>import Control.Monad                 -- import (<=<)
+>*>import Data.Foldable                 -- import foldr, foldrM, etc.
+>
+>*>:{
+>*|wf a b = do 
+>*|        tell $ show b             -- introduce String type log
+>*|        return $ a * b            -- target computation a*b.
+>*|:}
+>*>:info wf
+>*w :: (Monad m, Show b, Num b) => b -> b -> WriterT String m b
+>
+>*>let tl = [1,2,3,4]
+>*>let z = 1
+>
+>*>r1 <- runWriterT $ foldrM wf z tl
+>*>r1
+>*(4,"141224")
+>
+>*>let r2 = foldr (=<<) (pure z) $ wf <$> tl
+>*>rr2 <- runWriterT r2
+>*>rr2
+>*(4,"141224")
+>
+>*>let r3 = foldr (<=<) pure (wf <$> tl) $ z
+>*>rr3 <- runWriterT r3
+>*>rr3
+>(24,"141224")
+>```
 
-
-*> :{
-*| wf a b = do 
-*|         tell $ show b             -- introduce String type log
-*|         return $ a * b            -- target computation a*b.
-*| :}
-*> :info wf
-*wf :: (Monad m, Show b, Num b) => b -> b -> WriterT String m b
-
-*> let tl = [1,2,3,4]
-*> let z = 1
-
-*> r1 <- runWriterT $ foldrM wf z tl
-*> r1
-*(24,"141224")
-
-*> let r2 = foldr (=<<) (pure z) $ wf <$> tl
-*> rr2 <- runWriterT r2
-*> rr2
-*(24,"141224")
-
-*> let r3 = foldr (<=<) pure (wf <$> tl) $ z
-*> rr3 <- runWriterT r3
-*> rr3
-(24,"141224")
-```
 ### `foldrM` Summary 
 - `foldrM :: (Foldable t, Monad m) => ( a -> b -> m b ) -> b -> t a -> m b`
-- `foldrM` transform value of type a in `List a` to a monadical computation ` b -> m b`
+- `foldrM` transform value of type a in `List a` to a monadic computation ` b -> m b`
     > each element of `t a` contribute a piece of information to the computation ` b -> m b`.
 - then, these computataion of type `b -> m b` bind together from right to left.
 - With a initial value z of type `b`, we get the result of type `m b`.

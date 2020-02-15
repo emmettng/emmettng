@@ -5,7 +5,7 @@ draft: false
 ---
 > This summary follows the minimum useable principle.
 
-#### Path 
+#### Readings 
 - [Learn you a haskell](http://learnyouahaskell.com/for-a-few-monads-more)
 - [hackage: transformers ](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Reader.html)
 
@@ -23,14 +23,14 @@ type ReaderT r m a = ReaderT { runReaderT :: r -> m a }
 - `asks` convert a function from `env` to other type to a Reader Monad.
 - Usually, one `ask` will related to one Reader Monad that represent a function depends on `env` information.
 
-
+### ask
 ```
 ask :: (Monad m) => ReaderT r m r
 ask = ReaderT return
-
-return :: r -> m r
+    -- return :: r -> m r , return in this case is defined for 'm'
 ```
 
+### local
 ```
 local
 local
@@ -40,6 +40,7 @@ local
 local = withReaderT
 ```
 
+### withReaderT
 ```
 withReaderT
     :: (r' -> r)        -- ^ The function to modify the environment.
@@ -48,6 +49,7 @@ withReaderT
 withReaderT f m = ReaderT $ runReaderT m . f
 ```
 
+### asks
 ```
 asks
 asks :: (Monad m)
@@ -141,8 +143,8 @@ import           Data.Store
         return $ float2Double $ fn * f
     ```
 - A Chain of core functions. 
-    - Input is from a1 of type `Int`
-    - chain output is from a3 of type `Double`
+    - Input is a1 of type `Int`
+    - chain output is a3 of type `Double`
     - Only when input and `env` being provided, the result can be produced.
     ```
     chainA :: Int -> Reader Int Double
@@ -299,7 +301,7 @@ withReaderT f m = ReaderT $ runReaderT m . f
 ```
 ### 4.Example Four 
 ```
-asks :: (Monad m) => (r - a) -> ReaderT r m a 
+asks :: (Monad m) => (r -> a) -> ReaderT r m a 
 asks f = ReaderT (return . f)
 ```
 - Intuition:
@@ -337,7 +339,7 @@ This example is: `t1 + t2 + t3 + tc1 + td1`
 - Given a function of type ` :: r -> a`, we could use `asks` to convert it monad `ReaderT r m a`. However, it is not certainly applicable the other way around.     
 It could be impossible to factorize a function of type `ReaderT r m a` as combinations of `asks` and ` f `. 
     - The implementation of `asks` is `asks f = ReaderT (return . f)`
-    - In original `ReaderT r m a`. If `m` is `Either` or `IO`, there will be no `return` function which could produce information as in the original `ReaderT`. 
+    - In `ReaderT r m a`, if `m` is `Either` or `IO`, there will be no hope for `return . f` to produce `Computational Context` Information of `m`.
     - In this case, `m` usually related to more than one Type and each Type contains more than one possible value. 
 
 
@@ -387,7 +389,7 @@ It could be impossible to factorize a function of type `ReaderT r m a` as combin
 
     ` chainF = f1 >=> f2 >=> f3 >=> f4 >=> f5 `
 
-3. The computation of each **core** function could be very complicated and time consuming, so I would like to save the result of every step on the disk. If corresponding `config` doesn't change, than next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
+3. The computation of each **core** function could be very complicated and time consuming, so I would like to save the result of every step on the disk. If corresponding `config` doesn't change, the next time when `chainF` is running we can simple deserialize existed result and provide to the following functions.
  
 ***4. ReaderT implementations:***
 
@@ -516,7 +518,7 @@ stageChain =
 > - This number **`23`** is not as convincing as the number **`42`**.
 > - With highly abstracted expression ability, the design patterns of Haskell iImplementation would be more like a personal preference or a hobby rather than some task specific best practices.
 
-#### Path 
+#### Readings 
 - [Monad Reader](../monad-reader)
 - [fp complete: ReaderT](https://www.fpcomplete.com/blog/2017/06/readert-design-pattern) (compulsory)
 - [haskell in production](http://felixmulder.com/writing.html)
@@ -543,7 +545,7 @@ stageChain =
     class HasEnv4 a  where
       getSF4env :: a -> Double
   ```
-  `NewStage Double String` enabling use to use `Double` in doing test. So we don't need to construct a meaningless `env` .
+  `NewStage Double String` enabling the use of `Double` in test. So we don't need to construct a meaningless `env` .
   ```
     instance HasEnv4 Double where
       getSF4env = id
