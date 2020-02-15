@@ -38,83 +38,88 @@ draft: false
         ...
     ```
 
->**1.Only one value of Target Type** `a` **in** `t a`.
->
->- Because there is only one value of type `a`:
->   - Step ***b*** is not necessary in this case.
->   - Just guarantee replacing the `target type a` with a `monoidal type m` and other information with `mempty` ( in `Sum type :: | `) or simply being ignored ( in `Product type :: (,)`).
-> 
->- `Sum Type`: 
->    - [`Maybe`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable Maybe where
->           foldMap = maybe mempty
->           ...
->
->       maybe :: b -> (a -> b) -> Maybe a -> b 	-- Defined in ‘Data.Maybe’
->       ```
->    - [`Either a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable (Either a) where
->           foldMap _ (Left _) = mempty
->           foldMap f (Right y) = f y
->           ...
->       ```
->- `Product Type`:
->    - [`(,) a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable ((,) a) where
->           foldMap f (_, y) = f y
->           ...
->       ```
->
->**2.More values of `Target type`** `a` **in** `t a`.
->
->> **This is the main part of this doc.**
->
-> 1. If there is more than one value of the `target type` in the data structure, they must be organized based on the `Product` of `Target type a`. Two most used examples: 
- >       - `List`
->           ```
->           List a == f a  = 1 + a * f a
->                          = 1 + a * (1 + a * (1 + a * (1 + a*(1 + a * ...))))
->                          = 1 + a + a*a + a*a*a + ... + a*a*.... 
->           ```
->       - `Tree`
->           ```
->            Equation One: List a == f a = 1 + a * f a
->            Equation Two: Tree a == T a = a * List (T a)
->           ```
->            Replace `a` in  with `T a` in `Equation One` and put it back to `Equation Two`, then:
->           ``` 
->            Tree a == T a = a * List (T a)
->                          = a * (1 + (T a) + (T a)^2 + ... + (T a)^n)
->                          = a + a * (T a) + a * (T a)^2 + ...+ a * (T a)^n
->           ```
-> So we know:
->   - Type `List a`: `1` means a data structure contains No information of `a`. `a` means one value of type `a`. `a*a` means two values of type `a`, etc.
->       - `+` means `or`.
->       - `a * a` equivalent to cartesian product of set `a` and `a`.
->   - Type `Tree a`: at least one  piece of information of type `a`, or `a` and possible one or more trees `(T a)^n`.
->       - Evaluate the definition of `Tree a` till there is no `T a` left, we can see that `Tree a = a + a*a + a*a*a + ... + a*a*...`.
->       - The expansion of `Tree a` is quite similar with the expansion of `List a = 1+a+a*a+...`.
->
-> 2. Step `a` of `foldMap` replace `a` with `m`, we have:
->       `List a = 1 + a + ... + a*a*... -> 1 + m + ... + m*m*...`
->       `Tree a = a + a*a + ... + a*a*... -> m + m*m + ... + m*m*...`
-> 3. Step ***b*** of `foldMap`.
->       A product `m*m*m` needs to be
->       1. **Aggregated with `'<>'`**. 
->       1. **Aggregated with `'<>'`**. 
->       1. **Aggregated with `'<>'`**. \
->
->       means replace `*` of `product type` with `<>`. \
->   Now:\
->   `(Monoid m) => m * m * m` == `m <> m <> m`.
-> 
->>   The computation `foldMap f List` are essentially the same as `foldMap f Tree`, except:
->>    1. When `List` could be empty, then: `foldMap f List = mempty`.
+**1.Only one value of Target Type** `a` **in** `t a`.
 
->>    2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
+
+- Because there is only one value of type `a`:
+   - Step ***b*** is not necessary in this case.
+   - Just guarantee replacing the `target type a` with a `monoidal type m` and other information with `mempty` ( in `Sum type :: | `) or simply being ignored ( in `Product type :: (,)`).
+ 
+- `Sum Type`: 
+    - [`Maybe`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable Maybe where
+           foldMap = maybe mempty
+           ...
+
+       maybe :: b -> (a -> b) -> Maybe a -> b 	-- Defined in ‘Data.Maybe’
+       ```
+    - [`Either a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable (Either a) where
+           foldMap _ (Left _) = mempty
+           foldMap f (Right y) = f y
+           ...
+       ```
+- `Product Type`:
+    - [`(,) a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable ((,) a) where
+           foldMap f (_, y) = f y
+           ...
+       ```
+
+
+**2.More values of `Target type`** `a` **in** `t a`.
+
+> **This is the main part of this doc.**
+
+ If there is more than one value of the `target type` in the data structure, they must be organized based on the `Product` of `Target type a`. Two most used examples: 
+
+   - `List`
+       ```
+       List a == f a  = 1 + a * f a
+                      = 1 + a * (1 + a * (1 + a * (1 + a*(1 + a * ...))))
+                      = 1 + a + a*a + a*a*a + ... + a*a*.... 
+       ```
+   - `Tree`
+       ```
+        Equation One: List a == f a = 1 + a * f a
+        Equation Two: Tree a == T a = a * List (T a)
+       ```
+        Replace `a` in  with `T a` in `Equation One` and put it back to `Equation Two`, then:
+       ``` 
+        Tree a == T a = a * List (T a)
+                      = a * (1 + (T a) + (T a)^2 + ... + (T a)^n)
+                      = a + a * (T a) + a * (T a)^2 + ...+ a * (T a)^n
+       ```
+
+So we know:
+
+   - Type `List a`: `1` means a data structure contains No information of `a`. `a` means one value of type `a`. `a*a` means two values of type `a`, etc.
+       - `+` means `or`.
+       - `a * a` equivalent to cartesian product of set `a` and `a`.
+   - Type `Tree a`: at least one  piece of information of type `a`, or `a` and possible one or more trees `(T a)^n`.
+       - Evaluate the definition of `Tree a` till there is no `T a` left, we can see that `Tree a = a + a*a + a*a*a + ... + a*a*...`.
+       - The expansion of `Tree a` is quite similar with the expansion of `List a = 1+a+a*a+...`.
+
+ 2. Step `a` of `foldMap` replace `a` with `m`, we have:
+       `List a = 1 + a + ... + a*a*... -> 1 + m + ... + m*m*...`
+       `Tree a = a + a*a + ... + a*a*... -> m + m*m + ... + m*m*...`
+ 3. Step ***b*** of `foldMap`.
+       A product `m*m*m` needs to be
+       1. **Aggregated with `'<>'`**. 
+       1. **Aggregated with `'<>'`**. 
+       1. **Aggregated with `'<>'`**. \
+
+       means replace `*` of `product type` with `<>`. \
+   Now:\
+   `(Monoid m) => m * m * m` == `m <> m <> m`.
+ 
+>The computation `foldMap f List` are essentially the same as `foldMap f Tree`, except:
+>
+>1. When `List` could be empty, then: `foldMap f List = mempty`.
+>2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
 
 ### Summary
 - `List` and `Tree` as instances of `Foldable` are equivalent up to the definition of `foldMap` (except for foldMap over empty list). More generally speaking, all combination of `Sum type` and `Product Type` are essentially the same as instances of `Foldable`.
@@ -272,43 +277,43 @@ draft: false
     - `Foldable` treat all structure `t` equally as a `List`.
     - `foldr` replaces component of `List a`. It replaces  `Con` or `:` with `f`, and `[]` with `z`. 
 
-1. The semantics of `foldrM` is:
+1. The semantics of `foldrM`:
 
->- The type of `foldrM` is :
-> `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
-> It means we have:
-> 1. a function: `f :: ( a -> b -> m b) `
-> 2. a List or Tree: ` xs :: t a`
-> 3. an initial value: `z :: b`
-> 4. provide all 3 above we get a `r :: m b`
+- The type of `foldrM` is :
+ `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
+ It means we have:
+     1. a function: `f :: ( a -> b -> m b) `
+     2. a List or Tree: ` xs :: t a`
+     3. an initial value: `z :: b`
+     4. provide all 3 above we get a `r :: m b`
 
->- 1 step further:
->  map `f` over `xs`. 
-> `f <$> xs` get a list of type : `[(b -> m b), ( b -> m b) ..., (b -> m b)]`
+- 1 step further:
+  map `f` over `xs`. 
+ `f <$> xs` get a list of type : `[(b -> m b), ( b -> m b) ..., (b -> m b)]`
 
-> - 2 step further:
-> now the type is :
-> ` t (b -> m b) -> ( b -> m b)`
-> it is basically turn `[(b -> m b), ( b -> m b) ..., (b -> m b)]` to ` b -> m b`
-> **Semantics of foldM**: bind these monadic computation together. 
+ - 2 step further:
+ now the type is :
+ ` t (b -> m b) -> ( b -> m b)`
+ it is basically turn `[(b -> m b), ( b -> m b) ..., (b -> m b)]` to ` b -> m b`
+ **Semantics of foldM**: bind these monadic computation together. 
 
-> - 3 step further: 
-> **HOW**
-> we have ` (b -> m b) : (b -> m b) : ... : (b -> m b) : []`
->> Option A:
->> Replace `:` with `=<<` , `[]` with `m b`
->> we have `(b -> m b) =<< (b -> m b) =<< ... =<< ( b-> m b) =<< m b`
->> In this case: 
->>>` foldrM f z xs = foldr (=<<) (pure z) (f <$> xs)`
->>
->> Option B:
->> Replace `:` with `<=<`, `[]` with `b -> m b`
->> we have `(b -> m b) <=< (b -> m b) <=< ... <=< ( b-> m b) <=< (b -> m b)`
->> In this case: 
->> >`foldrM f z xs = foldr (<=<) pure (f <$> xs) $ z`
+ - 3 step further: 
+ **HOW**
+ we have ` (b -> m b) : (b -> m b) : ... : (b -> m b) : []`
+> Option A:
+> Replace `:` with `=<<` , `[]` with `m b`
+> we have `(b -> m b) =<< (b -> m b) =<< ... =<< ( b-> m b) =<< m b`
+> In this case: 
+>>` foldrM f z xs = foldr (=<<) (pure z) (f <$> xs)`
 >
->Example:
->
+> Option B:
+> Replace `:` with `<=<`, `[]` with `b -> m b`
+> we have `(b -> m b) <=< (b -> m b) <=< ... <=< ( b-> m b) <=< (b -> m b)`
+> In this case: 
+> >`foldrM f z xs = foldr (<=<) pure (f <$> xs) $ z`
+
+Example:
+
 >```
 >*>import Control.Monad.Trans.Writer    -- Use Wirter Monad in this example.
 >*>import Control.Monad                 -- import (<=<)
