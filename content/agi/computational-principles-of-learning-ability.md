@@ -4,7 +4,20 @@ date: 2019-10-28T12:29:44+08:00
 draft: false
 ---
 
-> Define the world so we know what the problem could be.
+> Define the world so that it can be understood by biological creatures autonomously .
+
+## Don't be smart 
+ **Smart** usually indicates the ability of identifying causal relation. Someone is smart if he could solve difficult problems or make accurate predictions, presumably. 
+ 
+Recent **AI** researchers and companies emphasise on how smart their algorithms or systems could be. They developed algorithms that could help us solve many complex problems effectively and sometimes it exceed human performance significantly. Many believe that a system is possessing human level intelligence if it could be as smart as human. This assumption indeed guide us developed many useful tricks. The only problem is **we are not smart**. Being smart is not an essential constituent of human beings. 
+
+Most people, at most of the time, are astonishingly stupid. We are looking for patterns all the time and most of these patterns has absolutely nothing to do with causal relation or could only be effective within very limit domain. 
+
+We are good at learning patterns comparing with other species. But only a small proportion of patterns represent causal relations and learning patterns is different from identifying causalities. In fact, during the past tens of thousands of years history of Homo Sapiens, we had not developed a efficient way of identifying causal relation until the most recent couple of hundred years.
+
+Being smart is a high level function, it is a result of composing pattern learning, intention, memory, imagination and many other lower level abilities. I believe that the pattern learning ability is one of many foundational abilities of human(biological) level intelligence.
+
+The way we learn pattern is different from many typical pattern learning algorithms. In this document I will discuss some unique properties that is necessary for a system to reach human(biological) level learning ability.
 
 ## No Free Lunch
 ```

@@ -1,9 +1,11 @@
 ---
 title: "Typeclass: Foldable"
 date: 2020-01-06T00:34:46+08:00
-draft: true
+draft: false
 ---
-### Reading List
+# Foldable
+
+### Readings
 - [Haskell wikibook: Foldable](https://en.wikibooks.org/wiki/Haskell/Foldable)
 - [Youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
 
@@ -23,116 +25,124 @@ draft: true
 |`instance Foldable`|`(Either a)`|in ‘Data.Foldable’|
 |`instance Foldable`|`((,) a)`|in ‘Data.Foldable’|
 
-### It starts from `foldMap`
+### It's all about `foldMap`
 
-- One or more value of target type `a` being organized in some **Data Structure**.
-- `foldMap`:
-  - ***a***. Replace `Target Type` with `Monoidal` type `m`.
+- When parametric type `t a` represents some data structure. One or more value of target type `a` could be contained in this data structure `t a`.
+- `foldMap` is about two operations:
+  - ***a***. Replace `Target Type a` with a `Monoidal` type `m`.
   - ***b***. Aggregate values of type `m` with `<>`, if there are many values of `m`.
     ```
-    typeClass Foldable  where 
+    typeClass Foldable  t where 
         ...
         foldMap :: Monoid m => (a -> m) -> t a -> m
         ...
     ```
 
+**1.Only one value of Target Type** `a` **in** `t a`.
 
->**1.One value of `Target type`** in the Data Structure
+
+- Because there is only one value of type `a`:
+   - Step ***b*** is not necessary in this case.
+   - Just guarantee replacing the `target type a` with a `monoidal type m` and other information with `mempty` ( in `Sum type :: | `) or simply being ignored ( in `Product type :: (,)`).
+ 
+- `Sum Type`: 
+    - [`Maybe`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable Maybe where
+           foldMap = maybe mempty
+           ...
+
+       maybe :: b -> (a -> b) -> Maybe a -> b 	-- Defined in ‘Data.Maybe’
+       ```
+    - [`Either a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable (Either a) where
+           foldMap _ (Left _) = mempty
+           foldMap f (Right y) = f y
+           ...
+       ```
+- `Product Type`:
+    - [`(,) a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
+       ```
+       instance Foldable ((,) a) where
+           foldMap f (_, y) = f y
+           ...
+       ```
+
+
+**2.More values of `Target type`** `a` **in** `t a`.
+
+> **This is the main part of this doc.**
+
+ If there is more than one value of the `target type` in the data structure, they must be organized based on the `Product` of `Target type a`. Two most used examples: 
+
+   - `List`
+       ```
+       List a == f a  = 1 + a * f a
+                      = 1 + a * (1 + a * (1 + a * (1 + a*(1 + a * ...))))
+                      = 1 + a + a*a + a*a*a + ... + a*a*.... 
+       ```
+   - `Tree`
+       ```
+        Equation One: List a == f a = 1 + a * f a
+        Equation Two: Tree a == T a = a * List (T a)
+       ```
+        Replace `a` in  with `T a` in `Equation One` and put it back to `Equation Two`, then:
+       ``` 
+        Tree a == T a = a * List (T a)
+                      = a * (1 + (T a) + (T a)^2 + ... + (T a)^n)
+                      = a + a * (T a) + a * (T a)^2 + ...+ a * (T a)^n
+       ```
+
+So we know:
+
+   - Type `List a`: `1` means a data structure contains No information of `a`. `a` means one value of type `a`. `a*a` means two values of type `a`, etc.
+       - `+` means `or`.
+       - `a * a` equivalent to cartesian product of set `a` and `a`.
+   - Type `Tree a`: at least one  piece of information of type `a`, or `a` and possible one or more trees `(T a)^n`.
+       - Evaluate the definition of `Tree a` till there is no `T a` left, we can see that `Tree a = a + a*a + a*a*a + ... + a*a*...`.
+       - The expansion of `Tree a` is quite similar with the expansion of `List a = 1+a+a*a+...`.
+
+ 2. Step `a` of `foldMap` replace `a` with `m`, we have:
+       `List a = 1 + a + ... + a*a*... -> 1 + m + ... + m*m*...`
+       `Tree a = a + a*a + ... + a*a*... -> m + m*m + ... + m*m*...`
+ 3. Step ***b*** of `foldMap`.
+       A product `m*m*m` needs to be
+       1. **Aggregated with `'<>'`**. 
+       1. **Aggregated with `'<>'`**. 
+       1. **Aggregated with `'<>'`**. \
+
+       means replace `*` of `product type` with `<>`. \
+   Now:\
+   `(Monoid m) => m * m * m` == `m <> m <> m`.
+ 
+>The computation `foldMap f List` are essentially the same as `foldMap f Tree`, except:
 >
->- Because there is only one value of type `m`:
->   - Step ***b*** is not necessary in this case.
->   - Just guarantee the `target type` to be `m` and other type to be `mempty` ( in `Sum type :: | `) or simply being ignored ( in `Product type :: (,)`).
-> 
->- `Sum Type`: 
->    - [`Maybe`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable Maybe where
->           foldMap = maybe mempty
->           ...
->
->       maybe :: b -> (a -> b) -> Maybe a -> b 	-- Defined in ‘Data.Maybe’
->       ```
->    - [`Either a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable (Either a) where
->           foldMap _ (Left _) = mempty
->           foldMap f (Right y) = f y
->           ...
->       ```
->- `Product Type`:
->    - [`(,) a`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html):
->       ```
->       instance Foldable ((,) a) where
->           foldMap f (_, y) = f y
->           ...
->       ```
->
->**2.More values of `Target type`** in the Data Structure
->
->> **This is the main part of this doc.**
->
-> 1. If there is more than one value of the `target type` in the data structure, they must be organized as a `Product type` of the same `Target type`. Two most used examples:
->       - `List`
->           ```
->           List a -> f a  = 1 + a * f a
->                          = 1 + a * (1 + a * (1 + a * (1 + a*(1 + a * ...))))
->                          = 1 + a + a*a + a*a*a + ... + a*a*.... 
->           ```
->       - `Tree`
->           ```
->            List a -> f a = 1 + a * f a
->            Tree a -> T a = a * List (T a)
->                          = a * (1 + T a * f T a)
->                          = a * (1 + a * (1 + T a * f T a))
->                          = a * (1 + a * (1 + a * (1 + T a * f T a)))
->                          = a + a*a + a*a*a + ... + a*a*a*List(T a)
->           ```
->            or replace `a` in `List a` with `T a`, then:
->           ``` 
->            Tree a -> T a = a * List (T a)
->                          = a * (1 + (T a) + (T a)^2 + ... + (T a)^n)
->                          = a + a * (T a) + a * (T a)^2 + ...+ a * (T a)^n
->           ```
-> So we know:
->   - Type `List a`: means a data structure contains No information of `a` ( `1`), or one value of type `a` (`a`), or two values of type `a`(`a*a`), etc.
->       - `+` means `or`.
->       - `a * a` equivalent to cartesian product of set `a` and `a`.
->   - Type `Tree a`: means always a piece of information of type `a`, or `a` and possible one or more trees `(T a)^n`.
->       - The first expansion of `T a = a+a*a+...+a*a*List(T a)` is quite similar with the expansion of `List a = 1+a+a*a+...`.
-> 
-> 2. A product `m*m*m` needs to \
->       1. **Aggregate values of type `m` with `<>`**.  (step ***b***)
->       1. **Aggregate values of type `m` with `<>`**.  (step ***b***)
->       1. **Aggregate values of type `m` with `<>`**.  (step ***b***)\
->   means replace `*` of `product type` with `<>`. \
->   (Is this the only possible option ? With minimal requirement of information and as the instance of Foldable, **YES!**).\
->   Now:\
->   `m * m * m`    ==>  `m <> m <> m`.
-> 
-> Assume function `f :: Monoid m => a -> m`, if we take the first expansion of List `L` and Tree `T`, we have:
->>  - `foldMap f L -> m <> m <> m <> m ...`
->>  - `foldMap f T -> m <> m <> m <> m ...`
->
->>   The computation `foldMap f L` are essentially the same as `foldMap f T`, except:
->>    1. When `L` could be empty, then: `foldMap f L = mempty`.
->>        ```
->>        foldMap f = foldr (mappend . f) mempty
->>
->>        foldr k z = go
->>              where
->>                go []     = z
->>                go (y:ys) = y `k` go ys
->>        ```
->>    2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
+>1. When `List` could be empty, then: `foldMap f List = mempty`.
+>2. `T` cannot be empty, it must contains at least one value of type `a`, it is equivalent to a List of only one element. In this case `foldMap f L = foldMap f T = m` 
 
 ### Summary
-- `List` and `Tree` as instances of `Foldable` are equivalent up to the definition of `foldMap` (except for foldMap over empty list). More generally speaking, all `Product Type` are essentially the same when being instance of `Foldable`.
+- `List` and `Tree` as instances of `Foldable` are equivalent up to the definition of `foldMap` (except for foldMap over empty list). More generally speaking, all combination of `Sum type` and `Product Type` are essentially the same as instances of `Foldable`.
 - This make sense, because a `typeclass` reflects only one particular aspect of a given type. In other words, it defines some common property of many types which may contains more information but could be ignored when being treated as a `instance` of this `typeclass`.
-- What `foldMap` does to a `Parametric Type` that is an instance of `Foldable`:
-  1. replace target type `a` with a monoid `m`.
-  2. When there are more values of `a`, replace `*` with `<>`. (***Whatever data structure it is***).
+- `FoldMap` does not utilize structure information of the `Parametric Type`. It simply:
+  1. replace target type `a` with a monoid type `m`.
   3. When there is only one value of `a`, replace `a` with `m` and others with `memtpy`.
+  2. When there are more values of `a`, replace `*` with `<>`.
+   (***Whatever data structure it is***).
+
 - **foldr**
+  ```
+  foldMap :: (Monoid m) => (a -> m) -> t a -> m 
+  ```
+  replace `m` with `b -> b`, we have
+  ```
+  aha :: (a -> b -> b) -> t a -> b -> b
+  ```
+
+  Function type `b -> b` is defined as an instance of [Monoid](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Semigroup.Internal.html#Endo) in Data.Semigroup.Internal. Wrapped by newtype `Endo`.
+
+
+  So wrap ` b -> b` with `Endo` newtype and rearrange type signature of `aha` we have:
   ```
   class Foldable (t :: * -> *) where
     ...
@@ -140,8 +150,8 @@ draft: true
     foldr f z t = appEndo (foldMap (Endo . f) t) z
     ...
   ```
+
   1. `appEndo (foldMap (Endo . f) t)` 
-      This operation 
       1. Replace ever `a` in `t` with a wrapped function `b -> b`
       1. Compose these functions together to have one function of type `b -> b`.
             ```
@@ -160,7 +170,7 @@ draft: true
      - `[1,2,3,4]`, `(1,2,3,4)` contains the same amount of information.
      - Replace as described above will get ``` (1:(2:(3:(4:[])))) ```. It could also be written as ```(Con 1 (Con 2 (Con 3 (Con 4 []))))```
      - `[]` is the `List` type terminator of type `[]`.
-  4. [`foldr`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldr) and [`foldMap`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldMap) can define each other.
+  4. [`foldr`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldr) can be used to define [`foldMap`](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldMap) as well.
         ```
         foldMap :: Monoid m => (a -> m) -> t a -> m
         foldMap f = foldr (mappend . f) mempty
@@ -168,16 +178,29 @@ draft: true
         foldr :: (a -> b -> b) -> b -> t a -> b
         foldr f z t = appEndo (foldMap (Endo #. f) t) z
         ```
+
+        ```
+        foldr definition for List as the instance of Foldable:
+
+        foldr k z = go
+              where
+                go []     = z
+                go (y:ys) = y `k` go ys
+        ```
 ## Intuition for Real World Implementation
 
 
 1. **`foldr`** [intuition for `List`](https://www.youtube.com/watch?v=t9pxo7L8mS0)
     - Replace `Con` with `f`.
+        - Or replace `:` with `f` (if `f` is an infix function).
     - Replace `Nil` with `z`.
+    {{< image src="/imgs/foldr.jpg" alt="foldr" position="center" style="border-radius: 8px;" >}}
+    ![foldr](../imgs/foldr.png)
     ```
     l = (Con a (Con b (Con c(Con ... (Con Nil))))
     foldr f z l =(f a (f b (f c(f ... (f z)))) 
     ```
+    
     - ***Justificatoin***
       - `foldr (a -> b -> b) b (List a) = foldMap (a -> b -> b) (List a) $ b`
         replace `a` with `b -> b` , replace `*` with `<>` in this case `.` 
@@ -236,7 +259,7 @@ draft: true
     Pretty self-explanatory.
 
 ## Others 
-### **1. [foldlM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldlM)**
+### **1. [foldrM](http://hackage.haskell.org/package/base-4.12.0.0/docs/src/Data.Foldable.html#foldrM)**
 
 |function| constraint|type| define | import |    
 |:--:|:--:|:--:|:--:|:--:|:--:|
@@ -249,138 +272,96 @@ draft: true
     - `t a` is a collection of elements with the same type `a`.
     - a function `f ` of type `a -> b -> b`
     - a single element of type `b`.
-    - `foldrl :: (Foldable t) => (a -> b -> b) -> b -> t a -> b`:  
+    - `foldr :: (Foldable t) => (a -> b -> b) -> b -> t a -> b`:  
         > each element of `t a` contribute a piece of information to a element of type `b` through function `f`.
     - `Foldable` treat all structure `t` equally as a `List`.
-    - `foldr` indicates that we retrieve element of `t a` from the right side of the list `t a`.
+    - `foldr` replaces component of `List a`. It replaces  `Con` or `:` with `f`, and `[]` with `z`. 
 
-1. The semantics of `foldrM` is:
+1. The semantics of `foldrM`:
 
->- Assuming we need a function of type:
-> `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
-> Usually it means we have:
-> 1. a function: `f :: ( a -> b -> m b) `
-> 2. a List or Tree: ` xs :: t a`
-> 3. an initial value: `z :: b`
+- The type of `foldrM` is :
+ `(Monad m, Foldable t) => (a -> b -> m b ) -> b -> t a -> m b`
+ It means we have:
+     1. a function: `f :: ( a -> b -> m b) `
+     2. a List or Tree: ` xs :: t a`
+     3. an initial value: `z :: b`
+     4. provide all 3 above we get a `r :: m b`
 
->- One step further:
-> Usually, we map `f` on `xs`. 
-> `f <$> xs` get a list of functions: `[(b -> m b), ( b -> m b) ...]`
+- 1 step further:
+  map `f` over `xs`. 
+ `f <$> xs` get a list of type : `[(b -> m b), ( b -> m b) ..., (b -> m b)]`
 
->- Now we have 
->> 1. an initial value: `z :: b`
->> 2. a list functions: `[(b -> m b), ( b -> m b) ...]`
+ - 2 step further:
+ now the type is :
+ ` t (b -> m b) -> ( b -> m b)`
+ it is basically turn `[(b -> m b), ( b -> m b) ..., (b -> m b)]` to ` b -> m b`
+ **Semantics of foldM**: bind these monadic computation together. 
+
+ - 3 step further: 
+ **HOW**
+ we have ` (b -> m b) : (b -> m b) : ... : (b -> m b) : []`
+> Option A:
+> Replace `:` with `=<<` , `[]` with `m b`
+> we have `(b -> m b) =<< (b -> m b) =<< ... =<< ( b-> m b) =<< m b`
+> In this case: 
+>>` foldrM f z xs = foldr (=<<) (pure z) (f <$> xs)`
 >
->>And we want a value of type ` m b`.
-> It's `t ( b -> m b) -> b -> m b`
+> Option B:
+> Replace `:` with `<=<`, `[]` with `b -> m b`
+> we have `(b -> m b) <=< (b -> m b) <=< ... <=< ( b-> m b) <=< (b -> m b)`
+> In this case: 
+> >`foldrM f z xs = foldr (<=<) pure (f <$> xs) $ z`
 
-I think this can be rewritten like this:
-> It's `t ( b -> m b) -> (b -> m b)`
-```
-tb:: t (b -> m b)
-foldr (=<<) pure tb :: b -> m b
-```
-```
-tb:: t (b -> m b)
-foldr (<=<) pure tb :: b -> m b
-```
+Example:
 
->- One more step further:\
-> The reasonable and minimal information required operation is combine the `initial value` and a `list of function` with `>>=`. Like this: \
-> ` m b >>= ( b-> m b) >>= ( b -> m b) ... `
+>```
+>*>import Control.Monad.Trans.Writer    -- Use Wirter Monad in this example.
+>*>import Control.Monad                 -- import (<=<)
+>*>import Data.Foldable                 -- import foldr, foldrM, etc.
+>
+>*>:{
+>*|wf a b = do 
+>*|        tell $ show b             -- introduce String type log
+>*|        return $ a * b            -- target computation a*b.
+>*|:}
+>*>:info wf
+>*w :: (Monad m, Show b, Num b) => b -> b -> WriterT String m b
+>
+>*>let tl = [1,2,3,4]
+>*>let z = 1
+>
+>*>r1 <- runWriterT $ foldrM wf z tl
+>*>r1
+>*(4,"141224")
+>
+>*>let r2 = foldr (=<<) (pure z) $ wf <$> tl
+>*>rr2 <- runWriterT r2
+>*>rr2
+>*(4,"141224")
+>
+>*>let r3 = foldr (<=<) pure (wf <$> tl) $ z
+>*>rr3 <- runWriterT r3
+>*>rr3
+>(24,"141224")
+>```
 
-> NOW
->> 1. we have a list of functions of type `[f1, f2,..., fn ] :: [(b ->m b), (b -m b), ...]`.
->> 1. we know it combine like this ` m b >>= (b -> m b) >>= (b -> m b)`. But:
->>  - `mb >>= f1 >>= f2 >>= ...  >>= fn`
->>  - `mb >>= fn >>= ... >>= f2 >>= f1`
-> - WHICH?
-
-> fold from right `mb >>= fn >>= ... >>= f2 >>= f1`
-> fold from left `mb >>= f1 >>= f2 >>= ...  >>= fn`
-
-> This is about `foldr`
-> - replace `a` with `f`
-> - replace `<>` with `.`
-> - `<=<` keeps the composition order.
-```
-> let c = (return <=<) . (return <=<)
-> :info c
-c :: Monad m => (a -> m c) -> a -> m c
-  	-- Defined at <interactive>:11:5
-> let c = (return >=>) . (return >=>)
-> :info c
-c :: Monad m => (b -> m c) -> b -> m c
-  	-- Defined at <interactive>:13:5
-> :info (<=<)
-(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
-  	-- Defined in ‘Control.Monad’
-infixr 1 <=<
-> :info (>=>)
-(>=>) :: Monad m => (a -> m b) -> (b -> m c) -> a -> m c
-  	-- Defined in ‘Control.Monad’
-
-Prelude GHC.Base Control.Monad> :info (.)
-(.) :: (b -> c) -> (a -> b) -> a -> c 	-- Defined in ‘GHC.Base’
-infixr 9 .
-Prelude GHC.Base Control.Monad> :info (<=<)
-(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
-  	-- Defined in ‘Control.Monad’
-infixr 1 <=<
-
-```
-[stackoverflow question](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de)
-```
-(b -> m b) -> (b -> m b) -> (b -> m b) -> ( b -> m b) -> t ( b -> m b) - (b -> m b) 
-= foldr <=< return (f <$> xs) 
-= foldMap <=< (f<$>xs) $ return
-```
-> TODO: all information above, needs more intuitive organization.
+### `foldrM` Summary 
+- `foldrM :: (Foldable t, Monad m) => ( a -> b -> m b ) -> b -> t a -> m b`
+- `foldrM` transform value of type a in `List a` to a monadic computation ` b -> m b`
+    > each element of `t a` contribute a piece of information to the computation ` b -> m b`.
+- then, these computataion of type `b -> m b` bind together from right to left.
+- With a initial value z of type `b`, we get the result of type `m b`.
 
 
 ## TODO: 
  1. Why is this `flatten` in `Data.Tree` better than `foldr` version above.
- 2. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)
-
-foldr + fmap vs foldrM
-```
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :{
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable| let wf a b = do 
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable|             tell $ show b
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable|             pure $ a*b
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable| :}
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let tl = [1,2,3,4]
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let tm = wf <$> tl
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info wf
-wf :: (Monad m, Show b, Num b) => b -> b -> WriterT String m b
-  	-- Defined at <interactive>:158:5
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info tm
-tm :: (Monad m, Show b, Num b) => [b -> WriterT String m b]
-  	-- Defined at <interactive>:163:5
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let p1 f = foldr (=<<) f tm
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info p1
-p1 ::
-  (Monad m, Show a, Num a) =>
-  WriterT String m a -> WriterT String m a
-  	-- Defined at <interactive>:166:5
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let r1 = p1 $ writer (1,"")
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr1 <- runWriterT r1
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr1
-(24,"141224")
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let p2 = foldrM wf 1 tl
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> :info p2
-p2 :: (Monad m, Show b, Num b) => WriterT String m b
-  	-- Defined at <interactive>:171:5
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr2 <- runWriterT p2
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> rr2
-(24,"141224")
-```
-
-
-How to rewite foldM in the form of foldr + fmap
-```
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> let pl = foldM wf 1 tl 
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> l <- runWriterT pl
-*Main Control.Monad Control.Monad.Trans.Writer Data.Foldable> l
-(24,"1234")
-```
+ 1. How to rewrite foldM(foldlM) in the form of foldr + fmap
+    > The official definition of [`foldlM`](https://hackage.haskell.org/package/base-4.7.0.2/docs/src/Data-Foldable.html#foldlM) and [`foldrM`](https://hackage.haskell.org/package/base-4.7.0.2/docs/src/Data-Foldable.html#foldrM) is hard to understand. 
+    ```
+    *> let pl = foldM wf 1 tl 
+    *> l <- runWriterT pl
+    *> l
+    (24,"1234")
+    ```
+    Try combine the answer in [stackoverflow](https://stackoverflow.com/questions/58443912/what-kind-of-knowledge-or-training-is-necessary-for-someone-to-write-down-the-de) to get an intuitive understanding.
+ 1. Intuition about all examples in [youtube ConfEngine](https://www.youtube.com/watch?v=t9pxo7L8mS0)

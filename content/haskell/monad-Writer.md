@@ -1,11 +1,11 @@
 ---
 title: "Monad: Writer"
 date: 2019-11-06T11:15:38+08:00
-draft: true
+draft: false
 ---
 > This summary follows the minimum useable principle.
 
-#### Path
+#### Readings
 - [Yahtee1](http://h2.jaguarpaw.co.uk/posts/using-brain-less-refactoring-yahtzee/)
 - [Yahtee2](http://h2.jaguarpaw.co.uk/posts/good-design-and-type-safety-in-yahtzee/)
 - [haskell at work: domain modeling](https://haskell-at-work.com/)
@@ -23,9 +23,6 @@ instance (Monoid w) => Monad (Writer w) where
     (Writer (x,v)) >>= f = let (Writer (y, v')) = f x in Writer (y, v `mappend` v') 
 ```
 
-{{< image src="/imgs/lyah_writer.png" alt="Writer Monad" position="center" style="border-radius: 8px;" >}}
-
-
 **Complete definition** from *Control.Monad.Trans*
 ```
 newtype WriterT w m a = WriterT { runWriterT :: m (a, w) }
@@ -40,9 +37,10 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
 
 ### Monadic Semantics
 - Target type : `a`
-- Context type : `Writer m` or `WriterT w m`
+- Context type : `(Monoid m) => Writer m` or `(Monoid m) => WriterT w m`
     - **Explicitly** : transformation among `target types :: a -> b -> c`.
     - **Implicitly** : Aggregate `logging` information of type `w` during the target types transformation.
+    
 > - There is a type `b`.
 > - There is a function (`:: a -> b`) from `a` to `b`.
 > - Many functions ` a -> b` , `b -> c` ... `y -> z` many compose as a transformation from `a -> z`.
@@ -55,9 +53,9 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
 >> - `>=> :: (a -> Writer w b) -> ( b -> Writer w c) -> (a -> Writer w c)`
 > - The transformation of `target types` and `logging` information are being processed explicitly and implicitly respectively.
 
-- auxiliary functions `tell`,`return`, `listen(s)`, `pass`,`censor`
-- Each result in a Writer monad.
-- These special purpose Writer Monad are composed by `>>` operator usually.
+- Auxiliary functions `tell`,`return`, `listen(s)`, `pass`,`censor`
+- These functions output Writer Monad.
+- These special purpose Writer Monads are composed by `>>` operator usually.
 - They collectively work as a single Writer Monad for certain function.
 
 
@@ -85,7 +83,7 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
     `tell w` introduce the logging information and `return a` introduce the `target information`, `>>` combines these two together as a new `Writer Monad`.
 
 ### listen 
-- Retrieve logging information `w` and update `target type` `a` to `(a,w)`. So that we could process `logging information w` explicitly.
+- Retrieve logging information `w` by transforming `target type` `a` to `(a,w)`. So that we could process `logging information w` explicitly.
     ```
     listen :: (Monad m) => WriterT w m a -> WriterT w m (a, w)
     listen m = WriterT $ do
@@ -116,6 +114,9 @@ instance (Monoid w, Monad m) => Monad (WriterT w m) where
         ~((a, f), w) <- runWriterT m
         return (a, f w)
     ```
+####Section Summary 
+>Haskell enable us to decompose an application into `target computation` and `computation context`. So that we could manage to get predictable outcome by recomposing various `target computation` with `computation context`. These auxiliary function mainly about manipulating `Context` related information.
+
 
 ### Example 1: Simple Example
 
@@ -195,7 +196,9 @@ Check in ghci:
 > totalLog 
 WriterT (Identity ([3,6,9,12,15,18,21,24,27,30],LoggingType {partOne = 55, partTwo = 110}))
 ```
+
 Intuition:
+
 - Target Operation:
     - `p1list` and `p2list` zip together produces the target input of type `[(Int,Int)]`.
     - The target transform is `(Int,Int) -> Int`. Which is `s = e1 + e2`.
@@ -214,7 +217,7 @@ Intuition:
         mapM (Int,Int) -> Writer LoggingType Int   [...]
         ```
 - This newly Context sensitive transform `createLog` need to cooperate with `mapM` instead of `map`.
-- The Target Operation and Context Operation would more clear if we rewrite `createLog` as:
+- The `Target Computation` and `Computation Context` would more clear if we rewrite `createLog` as:
      ```
      createLog (e1,e2) = do
        tell $ LoggingType e1 e2      -- tell : Context Operation :: LoggingType

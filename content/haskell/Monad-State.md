@@ -5,7 +5,7 @@ draft: false
 ---
 > This summary follows the minimum useable principle.
 
-#### Path 
+#### Readings
 - [learn you a haskell: for a few monads and more](http://learnyouahaskell.com/for-a-few-monads-more)
 - [Hackage Control.Monad.Trans.State.Lazy](http://hackage.haskell.org/package/transformers-0.5.4.0/docs/src/Control-Monad-Trans-State-Lazy.html#StateT)
 
@@ -18,6 +18,7 @@ newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
 newtype State s a = State { runState :: s -> (a,s) }  
 ```
 {{< image src="/imgs/lyah_state.png" alt="State Monad" position="center" style="border-radius: 8px;" >}}
+![State Monad](../imgs/lyah_state.png)
 
 
 **Complete definition** from *Control.Monad.Trans*
@@ -34,6 +35,7 @@ instance (Monad m) => Monad (StateT s m) where
 
 **Self recap** 
 {{< image src="/imgs/state_recap.jpg" alt="State Monad" position="center" style="border-radius: 8px;" >}}
+![State Monad recap](../imgs/state_recap.jpg)
 
 
 
@@ -124,8 +126,8 @@ evalState m s = fst (runState m s)
 ```
 
 #### Common usage
-1. use `get` to introduce state. (compulsory)
-2. some pure function :: `s -> a` will work on s . (optional)
+1. use `get` to introduce the state. (compulsory)
+2. some pure function :: `s -> a` transform `s` to `a` . (optional)
 3. `return` wrap `a` into State Monad. (compulsory)
 4. `put` updates the state. (optional, must followed by a `return`)
 5. `evaState` / `evalStateT`    
