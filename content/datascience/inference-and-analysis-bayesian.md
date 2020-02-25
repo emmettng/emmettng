@@ -41,14 +41,14 @@ $P(H|e) = \frac{P(e|H) P(H)}{P(e)}$
 >    The believe of our **priori knowledge** about $H$:
 >   - $P(H)$ 
 > 
->    will be updated to our **posterior knowledge**: 
+>    will be updated to get the **posterior knowledge**: 
 >    - $P(H|e)$  
 >>    means given the observation of evidence $e$
 
->    if we know the likelihood of observing $e$ when $H$ is happened for sure:
+>    by introducing the likelihood of observing $e$ on the condition of $H$ is happened for sure:
 >    - $P(e|H)$
 
-In other words, the prior knowledge of $P(H)$ updated with the known likelihood $P(e|H)$ to get the posterior knowledge $P(H|e)$.
+In other words, the prior knowledge of $P(H)$ updated by the known likelihood $P(e|H)$ to get the posterior knowledge $P(H|e)$.
 > $P(H|e) \propto P(e|H) P(H)$
 >> $P(e)$ usually don't need to be compute explicitly.
 
@@ -57,7 +57,8 @@ In other words, the prior knowledge of $P(H)$ updated with the known likelihood 
 Usually we know:
 - $P(H)$ and also $P(\neg{H})$
 - $P(e|H)$ and also $P(e|\neg{H})$
-- So that we know 
+- So that:
+    >>
     >$P(H|e) = \frac{P(e|H) P(H)}{P(e)}$
     > 
     > can be rewritten as:
@@ -73,11 +74,57 @@ Usually we know:
 $\frac{P(H|e)}{P(\neg{H}|e)} = \frac{P(e|H)P(H)}{P(e|\neg{H})P(\neg{H})}$
 
 The above formula could be reorganized as:
-- **posterior odds**:$\frac{H|e}{\neg{H|e}}=O(H|e)$ 
+- **prior odds**: $\frac{P(H)}{P(\neg{H})}=O(H)$
 
-- **likelihood**:$\frac{e|H}{P(e|\neg{H})}= L(e|H)$
+- **likelihood**:$\frac{P(e|H)}{P(e|\neg{H})}= L(e|H)$
 
-- **prior odds**: $\frac{H}{\neg{H}}=O(H)$
+- **posterior odds**:$\frac{P(H|e)}{\neg{P(H|e)}}=O(H|e)$ 
 
 So we have:
 > $O(H|e) = L(e|H) O(H)$
+> $O(H|e) = \frac{P(H|e)}{P(\neg{H}|e)} \implies P(H|e) = \frac{O(H|e)}{1+O(H|e)}$
+
+### 3.1 Pooling of Evidence
+
+If $e_k$ are independent from each other given condition $H$, then:
+- $P(e_1,e_2,...,e_k|H) = \prod_{k=1}^{N}P(e^k|H)$
+
+Therefore:
+-  $O(H|e_1,e_2,...,e_k)= O(H) \prod_{k=1}^{N}P(e^k|H)$
+
+
+### 3.2 Recursive updating Belief 
+
+From previous `Pooling of Evidence` we have the belief of:
+- $P(H|e_n)$
+
+what if the new evidence, or observation $e$ shows up.
+- $P(e|e_n)$
+
+in this case $e_n$ is the same as $Z$ in Probability section. It is the context information. So we have:
+- $P(H|e,e_n) \propto P(e|H,e_n) P(H|e_n)$ 
+
+if we remove the context information $e_n$ this is just a regular Bayesian formula.
+
+Now, let's focus one this:
+- $P(e|H,e_n)$ 
+
+This is the likelihood of observing $e$ given condition of $H$ and $e_n$. 
+
+**Condition ONE**: If knowing $H$ or $\neg{H}$ renders past observations $e_n$ totally irrelevant with regard to future observations $e$, then:
+- $P(e|H,e_n) = P(e|H)$ 
+
+So we could use a simple likelihood ratio 
+- $L(e|H) = \frac{P(e|H)}{P(e|\neg{H})}$
+
+to update our new posterior knowledge such as:
+- $O(H|e_{n+1})= L(e|H) O(H|e_n)$
+
+#### Summaries:
+- **Condition ONE** is a very restrict condition.
+- We could use `logarithm` to make this equation more intuitive:
+>>$logO(H|e_{n+1})=  log O(H|e_n) + logL(e|H)$
+
+## 4 Multi-Valued Hypotheses
+
+
