@@ -7,10 +7,13 @@ draft: true
 ## 1.Probability 
 
 1. $P(A) + P(\neg{A}) = 1$
-   
+
+   - Usually, $P(A)$ refers to the probability of the **Variable** $A$ being different values.
+   - In this case $A$ is a certain proposition (**Oberservation**), A certain value.
    - The probability of a proposition and all its mutual exclusive propositions added up to 1.
    -$P(A | Z) + P(\neg{A | Z}) = 1$. $Z$ is the context knowledge what would affect the distribution of $A$
-   - In this case $A$ is a certain proposition (**Oberservation**).
+   - Actually, all observation on the right side of notation ' **|** ' can be treated as a description of certain context knowledge.
+
    
 2. $P(A|B) = \frac{P(A,B)}{P(B)}$
 
@@ -127,4 +130,28 @@ to update our new posterior knowledge such as:
 
 ## 4 Multi-Valued Hypotheses
 
+- $P(e_1,e_2,...,e_k|H) = \prod_{k=1}^{N}P(e^k|H)$
 
+Assuming conditional independence with respect to each context knowledge $H_i$
+
+We know:
+- $P(H|e,e_n) \propto P(e|H,e_n) P(H|e_n)$ 
+  
+
+#### 4.1 likelihood matrix and likelihood vector of $e_i$
+    $P(e_i|H_j)$
+
+#### 4.2 prior knowledge vector
+
+#### 4.3 posterior knowledge update
+
+## TODO
+
+Identifying 
+1. An important tool in such organization is the identification of intermediate variables that introduce conditional independence among observables. 
+
+1. causal link to a graph .
+    The graph is constructed by known causality.
+    -- causal link has a great property that it is really easy to identifying intermediate variables that introduce conditional independence.
+
+2. Virtual Evidence ==> read again!
