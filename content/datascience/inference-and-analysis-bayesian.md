@@ -139,7 +139,8 @@ We know:
   
 
 #### 4.1 likelihood matrix and likelihood vector of $e_i$
-    $P(e_i|H_j)$
+
+$P(e_i|H_j)$
 
 #### 4.2 prior knowledge vector
 
@@ -153,5 +154,7 @@ Identifying
 1. causal link to a graph .
     The graph is constructed by known causality.
     -- causal link has a great property that it is really easy to identifying intermediate variables that introduce conditional independence.
-
+    -- PGM can always update from leaf node ?
 2. Virtual Evidence ==> read again!
+
+## 5 Belief Network
