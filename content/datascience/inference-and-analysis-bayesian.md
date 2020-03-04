@@ -190,7 +190,10 @@ Identifying
 1. causal link to a graph .
     The graph is constructed by known causality.
     -- causal link has a great property that it is really easy to identifying intermediate variables that introduce conditional independence.
+    -- PGM can always update from leaf node ?
+2. Virtual Evidence ==> read again!
 
+<<<<<<< HEAD
 2. Virtual Evidence ==> read again!
 
 
