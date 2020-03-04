@@ -3,18 +3,54 @@ title: "Inference and Analysis Bayesian"
 date: 2020-02-21T20:09:17+08:00
 draft: true
 ---
+## Readings
+- Probabilistic Reasoning in Intelligent Systems 
+- Causality (second edition) 
+
+
+## Terms:
+   1. [Probabilistic Proposition](https://en.wikipedia.org/wiki/Probabilistic_proposition): A probabilistic proposition is a proposition with a measured probability of being true for an arbitrary person at an arbitrary time.
+   1. [Propositional Variable](https://en.wikipedia.org/wiki/Propositional_variable): A propositional variable (also called a sentential variable or sentential letter) is a variable which can either be true or false. Propositional variables are the basic building-blocks of propositional formulas, used in propositional logic and higher logics.
+   1. **Upper case** represents propositional variable when being used in a formula to describe the relation between two or three propositions.
+       > $P(A) + P(\neg{A}) = 1$
+   1. **Upper case with subscript** represents a certain (value)observation of a **propositional variable**.
+       > $P(A) = \sum_{i}P(A|B_i)P(B_i)$
+   1. **lower case** represents propositional variable when being used in a formula to describe the relation among a set of propositions, many propositions will be denoted with same letter and different subscript.
+       > $P(x_1,x_2,...,x_n)$
+   1. **Upper case** and **Lower case** can be used together to represent certain semantic.
+       > $P(H|e) \propto P(e|H) P(H)$
+   $e$ represents `evidence`; $H$ represents `Hypothesis`.
+   1. All probabilistic variable in following sections are **Propositional variables**.
 
 ## 1.Probability 
+
+
 
 1. $P(A) + P(\neg{A}) = 1$
 
    - Usually, $P(A)$ refers to the probability of the **Variable** $A$ being different values.
-   - In this case $A$ is a certain proposition (**Oberservation**), A certain value.
+   - In this document, $A$ refers to proposition variable (**An observation of event A**).
    - The probability of a proposition and all its mutual exclusive propositions added up to 1.
    -$P(A | Z) + P(\neg{A | Z}) = 1$. $Z$ is the context knowledge what would affect the distribution of $A$
    - Actually, all observation on the right side of notation ' **|** ' can be treated as a description of certain context knowledge.
 
-   
+1. $P(A) = \sum_{i}P(A|B_i)P(B_i)$
+    
+    It is also:
+    - $P(A) = \sum_{i}P(A,B_i)$
+    
+    The probability of one propositions(**Obeservation**) $P(A)$ equals to the sum of all other propositions(**Obeservation**).
+
+1. Marginal probability $P(x_i)$
+    
+    A joint probability distribution of encoding n propositional variables would be:
+    - $P(x_1,x_2,...,x_n)$
+
+    - $P(x_i)$ is a marginal probability that require summing $P(x_1,x_2,...,x_{i-1},x_{i+1},...,x_n)$ over all $2^{n-1}$ combinations. 
+    
+
+
+
 2. $P(A|B) = \frac{P(A,B)}{P(B)}$
 
     This is the Bayesian interpretation of conditional probability:
@@ -26,14 +62,14 @@ draft: true
     normalized by the chance that the condition 
     - $P(B)$ \
     would happen.
+
+    If the knowledge is a joint distribution of n variables $P(x_1,x_2,...,x_n)$, so this formula 
+    - $P(x_i|x_j)=\frac{P(x_i,x_j)}{P(x_j)}$
+    entail dividing two marginal probabilities
+    - $P(x_j)$ and $P(x_i,x_j)$
    
    
-3. $P(A) = \sum_{i}P(A|B_i)P(B_i)$
-    
-    It is also:
-    - $P(A) = \sum_{i}P(A,B_i)$
-    
-    The probability of one propositions(**Obeservation**) $P(A)$ equals to the sum of all other propositions(**Obeservation**).
+
 
 ## 2.Classical Bayesian 
 
@@ -139,7 +175,8 @@ We know:
   
 
 #### 4.1 likelihood matrix and likelihood vector of $e_i$
-    $P(e_i|H_j)$
+
+- $P(e_i|H_j)$
 
 #### 4.2 prior knowledge vector
 
@@ -155,3 +192,40 @@ Identifying
     -- causal link has a great property that it is really easy to identifying intermediate variables that introduce conditional independence.
 
 2. Virtual Evidence ==> read again!
+
+
+## Markov and Bayesian Network 
+
+### Main topics
+   - Markov network: undirected graph, represents **symmetrical probabilistic dependencies**.
+   - Bayesian network: directed acyclic graph , represents **causal influences**.
+
+### Interested in 
+  - X is independent of Y, given Z 
+  - information dependency 
+  - knowledge representation schemes in inference systems.
+  - construct independencies like human (by using graph)
+
+- the elementary building blocks of human knowledge are not entires of a joint-distribution table. Rather, they are low-order marginal and conditional probabilities defined over small clusters of propositions.
+
+- Graph
+    - node represents propositional variables
+    - arc represents local dependencies among conceptually related propositions. 
+
+- Section 3.1.2 is a great tutorial for deriving theorem.
+    - Actually the entire idea behind section 3.1 is worth thinking 
+
+- $P(X|Y,Z) = P(X|Z)$ : given the knowledge of $Z$ the knowing the truth of $Y$ would not affect our belief of $X$. $X$ is independent from $Y$ given $Z$.
+
+- we interested in conditional probability because, the inference starts from the joint probability of all proposition is inapplicable.
+
+### Markov network as knowledge Base
+
+- in a undirected graph:
+    - vertex represents propositional variable 
+    - arc represents local dependencies 
+    - a variable is proclaimed independent of all its non-neighbors once we know the values of its neighbors.
+
+**TODO** needs more attention 
+
+### Bayesian network
