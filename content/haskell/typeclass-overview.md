@@ -61,7 +61,7 @@ Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor`
 
 - Being the instance of different typeclasses, one ***Context Type*** could carries different semantics, indicating how computational chain of the target type will be affected in certain way. (**This is what this doc all about**)
   
-      [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
+    [example](http://hackage.haskell.org/package/transformers-0.5.6.2/docs/src/Control.Monad.Trans.Writer.Lazy.html#mapWriterT): 
 
   - `functor` + `Writer` ==> `Writer` is a container in this case.
   - `Monad` + `Writer` ==> `Writer` is a computational context relies on `Monoid` type to accumulate( `mappend`) some extra `logging` information `w`.
@@ -80,37 +80,40 @@ Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor`
         ~(b, w') <- runWriterT (k a)
         return (b, w `mappend` w')
   ```
+
 - `Context Type` as a wrapper of existing type could be used for specific purpose and avoiding being ambiguous. 
   
-      example:
+    example:
  
-      `(,)` and `Writer` are equal up to isomorphism.
-      ```
-          > type P = forall a. ((,)a)
-          > :info P
-          type P = forall a. (,) a :: * -> *
-      ```
-      ```
-        newtype Writer m a = Writer {runWriter :: (a , w)}
-      ```
-      They contain equal amount of information. The `Writer` part in `newtype Writer` is being used to identify possible different instance of the same `typeclass`.
+    `(,)` and `Writer` are equal up to isomorphism.
 
-      example:
+    ```
+        > type P = forall a. ((,)a)
+        > :info P
+        type P = forall a. (,) a :: * -> *
+    ```
 
-        ```
-        instance Monoid a => Applicative ((,) a) where
-          pure x = (mempty, x)
-          (u, f) <*> (v, x) = (u <> v, f x)
-          liftA2 f (u, x) (v, y) = (u <> v, f x y)
+    ```
+      newtype Writer m a = Writer {runWriter :: (a , w)}
+    ```
+    They contain equal amount of information. The `Writer` part in `newtype Writer` is being used to identify possible different instance of the same `typeclass`.
 
-        instance (Monoid w) => Applicative (Writer w ) where
-          pure a  = Writer $ (a, empty)
-          f <*> v = Writer $ k f v
-                where k (a, w) (b, w') = (a b, w `append` w')
-        ```
-      Both being instance of `Applicative` with same context semantics, `(,)` relies on the `first` element of being `Monoid` type, `Writer` relies on the `second` element of being a `Monoid` type. 
+    example:
 
-***Parametric types is the foundation*** of decomposing an application into `computational chain` and `computational context` factors.***
+    ```
+    instance Monoid a => Applicative ((,) a) where
+      pure x = (mempty, x)
+      (u, f) <*> (v, x) = (u <> v, f x)
+      liftA2 f (u, x) (v, y) = (u <> v, f x y)
+
+    instance (Monoid w) => Applicative (Writer w ) where
+      pure a  = Writer $ (a, empty)
+      f <*> v = Writer $ k f v
+            where k (a, w) (b, w') = (a b, w `append` w')
+    ```
+    Both being instance of `Applicative` with same context semantics, `(,)` relies on the `first` element of being `Monoid` type, `Writer` relies on the `second` element of being a `Monoid` type. 
+
+***Parametric types is the foundation*** of decomposing an application into `computational chain` and `computational context` factors.
 
 A functional application is just a recomposition of `computational chains` of different `computational context`.
 
@@ -125,8 +128,8 @@ Category theory and haskell guarantee that the behaviour of recomposing a long `
 
 Three common `Typeclass`es, that being used to define how, a context type `f`, could affect the target computation `a -> b`.
 
-| `typeclass`| `main function`| `function type`|
-|:--:|:--:|:--:|
+| `typeclass`| `main-function`| `function type`|
+|:--:|:--:|:--|
 |`Functor`| `<$>`| `(a -> b) -> f a -> f b`|
 |`Applicative`| `<*>` |`f(a -> b) -> f a -> f b`|
 |`Monad`|`>>=` | `f a -> ( a -> f b) -> f b`|

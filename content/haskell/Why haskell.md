@@ -5,7 +5,7 @@ draft: true
 ---
 
 ### Programming 
-- We decompose a complex problem into many factors. Hopefully, a composition of these factors would work as we expected and satisfy our requirements. 
+- We decompose a complex problem into many factors. Hopefully, a recomposition of these factors would work as we expected and satisfy our requirements. 
 
     The problem is, we managed to construct these factors by developing and testing upon limited examples/requirements and tradition methodologies , such as OOP, fail to predicate the validity of arbitrary recomposition of these factors:
     - new way of composition could be unexpected
@@ -25,6 +25,4 @@ draft: true
 ### Everything out of Nothing
 
 - Category theory.
-    - As a researcher with sufficient computer science background but limited mathematical background, Haskell implementations would help me gaining deep understandings about many highly abstracted patterns.
-
-
+    - As a researcher with sufficient computer science background but limited mathematical background, Haskell implementations would help me gaining more understandings about many highly abstracted patterns.
