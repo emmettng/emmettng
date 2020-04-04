@@ -1,10 +1,10 @@
 ---
-title: "Haskell Neovim Hie Config"
+title: "Haskell Neovim"
 date: 2019-10-28T18:24:53+08:00
 draft: false 
 ---
 
-> May God bless this config 
+> May God bless this thing
 
 ## neovim 
 - nodejs   
@@ -27,55 +27,12 @@ draft: false
   sudo apt-get install neovim
   ```
 
-  set up coc.nvim
-  ```
-  :CocConfig
-  ```
-  [setup tutorial 0](http://marco-lopes.com/articles/Vim-and-Haskell-in-2019/)   
-  [setup tutorial 1](https://chrispenner.ca/posts/hie-core)  
-  Example:
-  ```
-  {
-	"haskell": {
-  	"command": "hie-wrapper",
-  	"rootPatterns": [".stack.yaml", "cabal.config", "package.yaml"],
-  	"filetypes": ["hs", "lhs", "haskell"],
-  	"initializationOptions": {},
-  	"settings": {
-    	"languageServerHaskell": {
-    	  "hlintOn": true,
-    	  "maxNumberOfProblems": 10,
-    	  "completionSnippetsOn": true
-    	}
-  	}
-	}
-  }
-  ```
-    - in `.config/nvim/ini.vim`
-  ```
-  
-  ```
+## ghcide 
+`ghcide` is way much better than `hie`
 
-  common operation:  
-  1. Plug 'scrooloose/nerdtree'  
+- [ghcide instruction](https://github.com/digital-asset/ghcide): The instruction works fine till now. 
+  - set up `~/.config/nvim/coc-setting.json`
+  - set up `~/.config/nvim/init.json`
+  ([neovim setup instruction](https://jdhao.github.io/2018/12/24/centos_nvim_install_use_guide_en/#builtin-terminal))
 
-      in init.vim
-      ```
-      map <C-f> :NERDTreeToggle<CR>
-      ```
-      in nvim use ctrl-f to open fold tree and use ctrl-w w to move around.
-      ```
-      Control+W followed by W
-      ```
-
-```
-code
-```
-
-### Others sets
-
-- use system clipboard, copy and paste between different vim windows.
-  
-  ```
-  set clipboard=unnamed
-  ```
+- select correct ghc version to cooperate with `ghcide`.

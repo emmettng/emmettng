@@ -6,10 +6,10 @@ draft: false
 
 There was a serial killer. 
 
-Whenever he came across a problem of a specific domain,  he would kidnap people with corresponding expertise and locked them up in one of 100 rooms. Meanwhile there are 99 monkeys each being locked in one of the other 99 rooms. 
+Whenever he came across a problem of a specific domain,  he would kidnap people with corresponding expertise and locked them up in one of 100 rooms. Meanwhile there are 99 monkeys being locked in other 99 rooms. 
 
-He then forward this task to the kidnapped expert and the other 99 monkeys. He swore that if he could tell the differences between works of the hostage and all these monkeys. He will release the hostage. Otherwise, he would follow his own bloody hobby. 
+He then forward the task to the kidnapped expert and monkeys. He swore that if the work of the expert is significantly better than works of these monkeys, he will release the hostage. Otherwise, he would follow his own bloody desire. 
 
-Unfortunately, after so many years, this serial killer has to keep suppressing his unspeakable dark desire. Because all these hostages could produce distinguishable (from monkey) work at easy.
+After so many years, due to the effort of lucky professionals from different areas, this serial killer has got all kinds of helps he need. He assembled his own race car, developed an app with beautiful UI, et cetera, et cetera. However unfortunately,  he has to keep suppressing his unspeakable dark desire. because all these hostages could produce distinguishable work at easy.
 
-Until one day, he needs a solution from a data scientist. And all he could provide to the data scientist and monkeys are the record of task description and a calculator.
+Until one day, he needs a solution from a data scientist. And all he could provide to the data scientist and each monkey are the task description and a calculator.
