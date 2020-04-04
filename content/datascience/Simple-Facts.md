@@ -6,18 +6,17 @@ draft: false
 > ` A, B, C & D`
 
 ## A. Typical data analysis process includes:  
-> 1. `Business requirements` and `data sampling scheme`.
+> 1. `Business requirements analysis`, `domain expertise mapping`, `data sampling scheme`.
 > 2. Scheme implementation.    
 > 3. ETL architecture implementation.   
-> 4. Distributional test & anomaly detection  
-> 5. Based on the primitive analysis of `C` and `D`, adjust process `A` to `D` accordingly.    
-> 6. Task-related analysis.   
-> 7. Modeling and Testing.     
-> 8. Scheduled task development and test.
+> 4. Distributional test , anomaly detection , exception identification, revise previous process. 
+> 6. Descriptive analysis and provide utility functions.
+> 7. Scheduled tasks modeling and evaluation.     
+> 8. Ad-hoc tasks development and evaluation.
 
 ## B. Problems of A  
 
-- It never happen in that order.
+- It will not be implemented in that order.
 - The requirements of our end-users could be paradoxical and the first version narrative has never been the same as what actually need to be done eventually. 
 - Data contamination will happen(ageing equipment, nonstandard operation, seasons, local convention, etc). So `Empirical Reference` need to be treated very carefully. 
 - Data is valid `iff` wrong value will cause problem and someone will be punished because this problem. Many upstream data from sales or manufacture department could be wrong or intentionally `adjusted` in their own interests (imbalanced or invalid normalization).
@@ -31,6 +30,6 @@ draft: false
     > - `People who eat salad usually has a healthy body shape. How about eating TEN times more? Presumably, it would make you TEM times more healthier. `
     
 ## D. Machine Learning 
-- Out of domain prediction is an illusion brought by low dimensional problem. 
+- Trying modeling with large number of parameters would confine the validity of this model in an extremely small domain. Out of domain prediction is an illusion brought by low dimensional problem. 
 - Machine Learning approach is necessary for helping us understand the high-dimensional sampling set rather than focusing on optimizing some certain loss function. 
 - Dimension reduction is always welcome. Because for end-users, `Explainable` **means** `Simple`, a low dimensional statistical indicator is more desirable. Therefore, certain lost of accuracy is acceptable.
