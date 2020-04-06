@@ -1,6 +1,6 @@
 # me 
 
-Puzzles in this world should be understood rather than be remembered. 
+Puzzles is the beacon that guide us to a more generalized understanding. 
 
 It is hard to avoid being deceived by our perception or daily life experience
 
@@ -9,7 +9,7 @@ It is easy to feel content with the role we play and the achievement we have gai
 And I'm lucky enough to be who I am today. I know where the future is, hope I could get there a litter bit faster than others.
 
 ## I am a: 
+ - Artificial Intelligence Researcher
  - Haskell & Category theory enthusiast. 
- - Machine Learning Researcher
  - Data analyst
   
