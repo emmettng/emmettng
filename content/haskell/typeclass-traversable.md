@@ -1,7 +1,7 @@
 ---
 title: "Typeclass Traversable"
 date: 2020-01-09T14:43:58+08:00
-draft: true
+draft: false
 ---
 
 ### Reading List 
