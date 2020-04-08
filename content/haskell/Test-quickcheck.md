@@ -1,14 +1,37 @@
 ---
-title: "Test Quickcheck"
+title: "Hspec & Quickcheck"
 date: 2020-04-08T17:12:25+08:00
 draft: true
 ---
 
-## 1.Hspec
-Hspec name is `Model+Spec.hs`
+## 1.Automatic Hspec discovery 
 
+
+1. in `package.yaml`
+    > `package.yaml` is a wrapper of `<projectname>.cabal`. This free me from dealing with the differences between `exitcode-stdio-1` and `detailed-0.9`, both are different `cabal` file types.
+    > - [package.yaml](https://github.com/sol/hpack#readme)
+    > - [cabal keys](https://www.haskell.org/cabal/users-guide/developing-packages.html)   
+
+edit `package.yaml`
+```
+tests: 
+  source-dirs: test
+  main: Spec.hs
+```
+2. create folder `test/` in project.
+3. create file `Spec.hs` in `test/`
+```
+-- file test/Spec.hs
+{-# OPTIONS_GHC -F -pgmF hspec-discover #-}
+```
+4. creat test file `TestOneSpec.hs` or `TestTwoSpec.hs` in `test/`.
+  - These files must end with `Spec.hs`.
+  - Each file has to export a function `spec` of type `Spec`.
+
+**Check** [official doc](https://hspec.github.io/hspec-discover.html) for more information. 
 ## 2.Quickcheck    
-Quickcheck stack project note:
+
+#### 2.1. Use only Quickcheck in stack project :
 - examples in folder `tests/Quicknote`, the same as `source-dirs` in package.yaml
 - main model in file `Examples.hs`, the same as `main` in package.yaml
 - The model name of file `Examples.hs` must be `Main` rather than `Example` or `Quicknote.Example`.
@@ -33,7 +56,7 @@ quickCheckWith :: quickCheckWith :: Testable prop => Args -> prop -> IO ()
 verboseCheck :: Testable prop => prop -> IO ()
 ```
 
-#### 2.1 Sample reminder
+#### 2.2. Sample reminder
 ```
 import Test.QuickCheck 
 
