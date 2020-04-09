@@ -1,10 +1,10 @@
 ---
-title: "Hspec & Quickcheck"
+title: "Quickcheck"
 date: 2020-04-08T17:12:25+08:00
 draft: true
 ---
 
-## 1.Automatic Hspec discovery 
+## 1. Hspec (Automatic Discovery)
 
 
 1. in `package.yaml`
