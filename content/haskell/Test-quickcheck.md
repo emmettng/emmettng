@@ -4,34 +4,83 @@ date: 2020-04-08T17:12:25+08:00
 draft: true
 ---
 
-## 2.Quickcheck    
 
-#### 2.1. Use only Quickcheck in stack project :
+# . WHY Quickcheck    
+
+- Hspec focus on individual cases 
+  - we need to choose input and predict output of the function being tested explicitly manually. 
+  ```
+    spec :: Spec 
+    spec = do 
+        describe "Some functionality A" $ 
+            it "can do this" (1+1) `shouldBe` 2
+  ```
+  > function (+) should act as expected.
+
+- Quichcheck focus on `properties`
+  - Function being tested should satisfy certain property on a given set. 
+  ```
+    prop_RevRev xs = reverse (reverse xs) == xs
+      where types = xs::[Int]
+  ```
+  > function `reverse` should satisfy this property. It is that reversing a list twice equivalent to doing nothing to this list at all.
+  
+  Quickcheck provide one possibility to test over as many use cases of a function as possible. It could offer: 
+    1. Auto generated input.
+    1. Auxiliary utilities to help describe the set of test cases. 
+
+
+
+
+# . Quickcheck Basic Idea  
+
+```
+class Testable prop where
+  property :: prop -> Property
+  propertyForAllShrinkShow :: Gen a
+                              -> (a -> [a]) -> (a -> [String]) -> (a -> prop) -> Property
+  {-# MINIMAL property #-}
+  	-- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable Property
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable prop => Testable (Maybe prop)
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable prop => Testable (Gen prop)
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable Discard
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable Bool
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] (Arbitrary a, Show a, Testable prop) =>
+                Testable (a -> prop)
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable ()
+  -- Defined in ‘Test.QuickCheck.Property’
+instance [safe] Testable HUnit-1.6.0.0:Test.HUnit.Lang.Assertion
+  -- Defined in ‘quickcheck-io-0.2.0:Test.QuickCheck.IO’
+```
+
+```
+quickCheck :: Testable prop => prop -> IO ()
+```
+
+```
+quickCheckWith :: Testable prop => Args -> prop -> IO ()
+```
+
+```
+Testable prop => prop -> IO ()
+```
+# . Use Quickcheck in stack project along:
 - examples in folder `tests/Quicknote`, the same as `source-dirs` in package.yaml
 - main model in file `Examples.hs`, the same as `main` in package.yaml
 - The model name of file `Examples.hs` must be `Main` rather than `Example` or `Quicknote.Example`.
   - The model name of file which is designated in `main` field in the package.yaml must be `Main`.
   - If there is more than one file in `tests/Quicknote` there mode name is the form `Quicknote.xxxx`.
 
-```
-Similarity
-  L1-norm based. Property tests:
 
-```
 
-```
- quickCheck :: quickCheck :: Testable prop => prop -> IO ()
-```
-
-```
-quickCheckWith :: quickCheckWith :: Testable prop => Args -> prop -> IO ()
-```
-
-```
-verboseCheck :: Testable prop => prop -> IO ()
-```
-
-#### 2.2. Sample reminder
+# . Sample reminder
 ```
 import Test.QuickCheck 
 
@@ -52,45 +101,104 @@ auxiFunc :: a -> Bool
 ```
 This function is an instance of TypeClass `Testable`.
 
-## 2. Typical test flow
-TODO 
-with necessary chart    
-condition, generator, sized etc...
 
-## 3. Note
+
+# .Note 
+summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html)
 >  
-> - **Properties**  
-> `Polymorphic` properties, such as the function `prop_rev` in simple remind, must be restricted to a particular type to be used for testing. Otherwise, there will be no clue for QuickCheck to generate test values.
-> ```
-> prop_rev :: [String] -> Bool
-> prop_rev xs = reverse (reverse xs) == xs
+> ## . **Properties**  
+>>  ```
+>>    newtype Property = MkProperty { unProperty :: Gen Prop }
+>>
+>>    class Testable prop where
+>>      property :: prop -> Property
+>>    ...
+>>    instance [safe] Testable Property
+>>    instance [safe] Testable prop => Testable (Maybe prop)
+>>    instance [safe] Testable prop => Testable (Gen prop)
+>>    instance [safe] Testable Discard
+>>    instance [safe] Testable Bool
+>>    instance [safe] (Arbitrary a, Show a, Testable prop) => Testable (a -> prop)
+>>    ...
+>>  ```
+>>  **Intuition** : 
+>>    - Many types are `Testable`, `Bool` or function of type `a -> prop`.
+>>    - `Property` is buffer all all types that are `Testable`.
+>>      - **TODO** : more details (maybe a separated doc)
 > 
-> main = quickCheck prop_RevRev
-> ```
-> Without the type declaration in the first line, there will be following error:
-> ```
-> * Ambiguous type variable `a0' arising from a use of `quickCheck`...
-> ```
+>>  ```
+>>    prop_RevRev xs = reverse (reverse xs) == xs
+>>      where types = xs::[Int]
+>>  ```
+>>  ```
+>>    prop_rev :: [String] -> Bool
+>>    prop_rev xs = reverse (reverse xs) == xs
+>>
+>>    main = quickCheck prop_RevRev
+>>  ```
+>>  - function `reverse` has a property that being implemented on a list twice is equivalent to do nothing to this list.
+>>  - `quickCheck :: Testable prop => prop -> IO ()`  needs `Testable` input. `Bool` is `Testable`. So the same as function of type: `Testable pro => a -> pro`.
+>>  - `prop_RevRev :: [Int] -> Bool` & `prop_rev :: [String] -> Bool` are both `Testable`.
+> - Property must be expressed as haskell function
+> - `Polymorphic type a` in `Testable pro => a -> pro` must be initialized as a `monomorphic` type. To provide information to QuickCheck to generate test values. 
+>>   - `where types = xs :: [Int]` 
+>>   - `prop_rev :: [String] -> Bool`
+>> 
+>>  Without the type declaration above , we will see the following error:
+>> ```
+>> * Ambiguous type variable `a0' arising from a use of `quickCheck`...
+>> ```
 
-> - **==>**  
-> **Condition**
-> ```
-> (==>) :: Testable prop => Bool -> prop -> Property
->   	-- Defined in ‘Test.QuickCheck.Property’
-> ```
-> ```
-> fa a ==> auxiFunc
-> ```
-> - `fa :: [a] -> Bool` : A filter function, discards auto generated test cases which do not satisfy the condition, Test case generation continues until 100 cases which do satisfy the condition have been found, or until an overall limit on the number of test cases is reached (to avoid looping if the condition never holds).
+>## . Conditional Properties
+>> `(==>) :: Testable prop => Bool -> prop -> Property`
+>>
+>> **Intuition:** 
+>>  - `prop` on the right side of `==>` is a `Testable` expression. 
+>>  - `Bool` on the left side of `==>` is a Boolean expression. 
+>>  - `prop`(right) will not be tested if `Bool`(left) is `false`.
+> 
+>> ```
+>>  ordered xs = and (zipWith (<=) xs (drop 1 xs))
+>>  insert x xs = takeWhile (<x) xs++[x]++dropWhile (<x) xs
+>> 
+>>  prop_Insert x xs = ordered xs ==> ordered (insert x xs)
+>>    where types = x::Int
+>> ```
+>> - LEFT: xs is an ordered list
+>> - RIGHT: function `insert` has such a property: it keeps the order of a list untainted (expressed as: `ordered (insert x xs))`.
+>> - What `==>` does :
+>>    - iif `xs` is ordered List, then it can be used to test the property of `insert`.
+> 
+> -  Test case generation continues until 100 cases which do satisfy the condition have been found.
+> -  OR
+> -  Until an overall limit on the number of test cases is reached (to avoid looping if the condition never holds).
 
-> - **forAll**    
-> ```  
-> forAll ::
->   (Show a, Testable prop) => Gen a -> (a -> prop) -> Property
->   	-- Defined in ‘Test.QuickCheck.Property’
-> ```
+>## . forAll
+>> ```  
+>> forAll ::
+>>   (Show a, Testable prop) => Gen a -> (a -> prop) -> Property
+>>   	-- Defined in ‘Test.QuickCheck.Property’
+>> ```
+>> **Intuition:**
+>> - `Gen a` is generator of type `a`.
+>> - `a -> prop` is a `Testable` expression relies on value of type `a`.
+>> - `forAll` connect Generator and `Testable` expression
 >
->Quantified Properties. The first argument of `forAll` is a test data generator; by supplying a custom generator, instead of using the default generator for that type, it is possible to control the **distribution** of test data. 
+>> ```
+>>  -- orderedList is a customer generator
+>>  prop_Insert2 x = forAll orderedList $ \xs -> ordered (insert x xs)
+>>    where types = x::Int 
+>>
+>>  prop_Index_v4 :: (NonEmptyList Integer) -> Property
+>>  prop_Index_v4 (NonEmpty xs) =
+>>    forAll (choose (0, length xs-1)) $ \n -> xs !! n == head (drop n xs)
+>> ```
+>> - Input :    `Gen a`: generator produce value of type `a`
+>> - Input :    `a -> prop`: `Testable` function relies on value of type `a`
+>> - Output: a  `Testable Property`
+> 
+> - Quantify the input (`Gen a`) of `Testable` function (`a -> prop`) 
+> - Control the **distribution** of `a`.
 
 
 > **Observing Test Case Distribution**
@@ -205,8 +313,16 @@ condition, generator, sized etc...
 >  `arbitrary = oneof ["a", "b", "c", "d", "e"]`
 
 
-# [QuickCheck](http://hackage.haskell.org/package/QuickCheck) Note
-> resources:
+## 2. Typical test flow
+TODO 
+with necessary chart    
+condition, generator, sized etc...
+
+
+# Readings
+
+> online resources:
+> - [QuickCheck](http://hackage.haskell.org/package/QuickCheck) Note
 > - Haskell Programming from first principles (chapter 12)
 > - https://www.schoolofhaskell.com/user/pbv/an-introduction-to-quickcheck-testing
 > - https://wiki.haskell.org/Introduction_to_QuickCheck1

@@ -22,7 +22,9 @@ spec = do                       -- more than one `describe`
             it "can do this with B" B1 `shouldBe` resultB1
             it "can do that with B" B2 `shouldBe` resultB2
 ```
-`stack test`
+
+**stack test**
+ 
 ```
 <Module name>               -- Test Module name with no `Spec`
   FunctionA      -- Text after `describe`
@@ -48,11 +50,12 @@ Finished in 0.0004 seconds
     <project name>-test-suite:  exited with: ExitFailure 1
 Logs printed to console
 ```
-`stact test --test-arguments=--match="<Module name>.FunctionB"`
-```
-This will only test the second describe part `FunctionB`
-```
-**TODO: This command doesn't work if there is any space in the description string**
+**Test a particular describe**
+
+`stact test --test-arguments=--match="<Module name>.FunctionB"`  
+**This will only test the second describe part `FunctionB`**
+
+**TODO: This command doesn't work if there is any space in the describe string**
 
 
 
@@ -81,10 +84,10 @@ This will only test the second describe part `FunctionB`
     ```
     spec :: Spec 
     spec = do 
-        describe "Some functionality A" $ 
+        describe "Some functionality A" $  do
             it "can do this" f1 `shouldBe` resultA1
             it "can do that" f2 `shouldBe` resultA2
-        describe "Some functionality B" $ 
+        describe "Some functionality B" $  do
             it "can do this" B1 `shouldBe` resultB1
             it "can do that" B2 `shouldBe` resultB2
     ```
