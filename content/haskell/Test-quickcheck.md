@@ -141,8 +141,8 @@ It is about :
 >>  **Intuition** : 
 >>    - Many types are `Testable`, `Bool` or function of type `(Testable prop) => a -> prop`.
 >>    - `Property` is common wrapper all all types that are `Testable`.
->>      - **TODO** : 
->>            1. more details (maybe a separated doc)
+>>      - **TODO** :    
+>>            1. more details (maybe a separated doc)    
 >>            2. Why is this wrapper necessary .
 > 
 >>  ```
