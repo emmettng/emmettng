@@ -105,7 +105,70 @@ This function is an instance of TypeClass `Testable`.
   - Example `forAll`:
   - Examples of following Note.
 
+# Examples
+## . 1
+Files
+```
+module Norm where 
+-- | Mean Absolute Difference
+import qualified Data.Vector.Storable as DV
+import Numeric.LinearAlgebra hiding (Vector)
 
+mad' :: Vector -> Vector -> Double
+mad' v1 v2 = (norm_1 v1 v2) / n                     
+  where 
+    n = fromIntegral . DV.length $ v1 
+
+mad :: Vector -> Vector -> Double
+mad v1 v2                    
+  | DV.length v1 /= 0 = (norm_1 v1 v2) / n 
+  | otherwise = 0.0
+  where 
+    n = fromIntegral . DV.length $ v1 
+```
+test:
+```
+import Norm 
+import qualified Data.Vector.Storable as DV
+
+import Test.QuickCheck 
+import Test.Hspec 
+
+-- sameLength ::[Double] -> [Double] -> Bool
+-- sameLength v1 v2 = length v1 == length v2
+gen'equal'length'list :: Int -> Gen ([Double], [Double])
+gen'equal'length'list len =
+  let v1 = sequence ([ arbitrary | _ <- [1 .. len] ] :: [Gen Double])
+      v2 = sequence ([ arbitrary | _ <- [1 .. len] ] :: [Gen Double])
+  in ((,)) <$> v1 <*> v2
+
+prop'mad :: Int -> Property
+prop'mad len = forAll (gen'equal'length'list len) $ prop'
+  where
+    prop' vt =
+      let v1 = fst vt
+          v2 = snd vt
+          l = fromIntegral . length $ v1
+          diff =
+            (mad (DV.fromList v1) (DV.fromList v2)) - (sum $ abs <$> zipWith (-) v1 v2) / l)
+      in abs diff < 0.0
+
+prop'mad :: Int -> Property
+prop'mad len = forAll (gen'equal'length'list len) $ prop'
+  where
+    prop' vt =
+      let v1 = fst vt
+          v2 = snd vt
+          l = fromIntegral . length $ v1
+          diff =
+            (mad (DV.fromList v1) (DV.fromList v2)) -
+            ((\x ->
+                 if x == 0
+                   then 0.0
+                   else (sum $ abs <$> zipWith (-) v1 v2) / x)
+               l)
+      in collect (l) $ collect (diff) $ abs diff < 0.01
+```
 # .Note 
 summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html) 
 
