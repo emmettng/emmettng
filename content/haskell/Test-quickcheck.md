@@ -1,24 +1,25 @@
 ---
 title: "Quickcheck"
 date: 2020-04-08T17:12:25+08:00
-draft: true
+draft: false
 ---
 
 
 # . WHY Quickcheck    
 
-- Hspec focus on individual cases 
-  - we need to choose input and predict output of the function being tested explicitly manually. 
+- Hspec to evaluate given test cases.
+  - Construct test case and choose input and predict output manually.
   ```
     spec :: Spec 
     spec = do 
         describe "Some functionality A" $ 
             it "can do this" (1+1) `shouldBe` 2
   ```
-  > function (+) should act as expected.
+  > This is the test case of function `(+)`.
 
-- Quichcheck focus on `properties`
-  - Function being tested should satisfy certain property on a given set. 
+- Quichcheck care about `properties`
+  - Function being tested should satisfy certain property on a set of test cases. 
+  - Test cases are auto generated.
   ```
     prop_RevRev xs = reverse (reverse xs) == xs
       where types = xs::[Int]
@@ -30,57 +31,59 @@ draft: true
     1. Auxiliary utilities to help describe the set of test cases. 
 
 
-
-
-# . Quickcheck Basic Idea  
-
-```
-class Testable prop where
-  property :: prop -> Property
-  propertyForAllShrinkShow :: Gen a
-                              -> (a -> [a]) -> (a -> [String]) -> (a -> prop) -> Property
-  {-# MINIMAL property #-}
-  	-- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable Property
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable prop => Testable (Maybe prop)
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable prop => Testable (Gen prop)
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable Discard
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable Bool
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] (Arbitrary a, Show a, Testable prop) =>
-                Testable (a -> prop)
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable ()
-  -- Defined in ‘Test.QuickCheck.Property’
-instance [safe] Testable HUnit-1.6.0.0:Test.HUnit.Lang.Assertion
-  -- Defined in ‘quickcheck-io-0.2.0:Test.QuickCheck.IO’
-```
-
-```
-quickCheck :: Testable prop => prop -> IO ()
-```
-
-```
-quickCheckWith :: Testable prop => Args -> prop -> IO ()
-```
-
-```
-Testable prop => prop -> IO ()
-```
 # . Use Quickcheck in stack project :
-- examples in folder `tests/Quicknote`, the same as `source-dirs` in package.yaml
-- main model in file `Examples.hs`, the same as `main` in package.yaml
-- The model name of file `Examples.hs` must be `Main` rather than `Example` or `Quicknote.Example`.
-  - The model name of file which is designated in `main` field in the package.yaml must be `Main`.
-  - If there is more than one file in `tests/Quicknote` there mode name is the form `Quicknote.xxxx`.
+**package.yaml**
+```
+tests:
+  discordia-test-suite:
+    source-dirs: test-suite
+    main: Spec.hs
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - hspec
+    - QuickCheck
+    - <other useful libraries>
+```
+
+**project structure**
+```
+<Project folder>
+  - src
+  - test-suite
+      - Spec.hs
+      - TestModelOne
+          - TestOneSpec.hs
+      - TestModelTwo
+          - TestTwoSpec.hs
+```
+
+- package.yaml --> test: --> source-dirs: --> test-suite
+- project: In folder `test-suite`
+  - `Spec.hs`
+    `{-# OPTIONS_GHC -F -pgmF hspec-discover #-}`
+  - `TestModelOne contains tests for module one`
+  - `TestModelTwo contains tests for module two`
+    - file name must end with `Spec.hs`
+  - In each `*Spec.hs` file 
+    ```
+    import Test.QuickCheck
+    import Test.Hspec
+    ...
+    spec :: Spec
+    spec = do
+      describe "some description" $
+        do it "  " $....
+           it "   " $...
+    .....
+    ```
+    `spec` must be type `Spec`
 
 
-
-# . Sample reminder
+# . Recap
 ```
 import Test.QuickCheck 
 
@@ -89,59 +92,56 @@ prop_rev xs = reverse (reverse xs) == xs
 
 main = quickCheck prop_RevRev
 ```
-The target function we would like to test is `reverse`.   
-The property of this target function is: If we apply this function twice `reverse (reverse xs)`, we will get the original list `xs`.  
-This property is being described as `reverse (reverse xs) == xs`  
+- The target function is `reverse`.   
+- Property: apply this function to a list `xs` twice `reverse (reverse xs)` will return the original list `xs`.  
+- This property is a function
+  - `prop_rev xs = reverse (reverse xs) == xs`  
+  - `prop_rev :: [a] -> Bool` 
+- QuickCheck generates random input(s) of prop_rev.
+- Feed random input to this property function. 
 
-QuickCheck generates number of random values of type `a` and feed to function `prop_rev`.   
-
-The most commonly being used function is of type:
-```
-auxiFunc :: a -> Bool
-```
-This function is an instance of TypeClass `Testable`.
-
-**TODO**: 
-  - Example `forAll`:
-  - Examples of following Note.
-
-# Examples
-## . 1
-Files
+# . Examples
+**Norm.hs**
 ```
 module Norm where 
--- | Mean Absolute Difference
+
 import qualified Data.Vector.Storable as DV
 import Numeric.LinearAlgebra hiding (Vector)
+
+-- | Mean Absolute Difference
+type Vector = DV.Vector Double 
 
 mad' :: Vector -> Vector -> Double
 mad' v1 v2 = (norm_1 v1 v2) / n                     
   where 
     n = fromIntegral . DV.length $ v1 
+```
+- `mad` compute mean of absolute difference
+- `mad` relies on `norm_1` from `Numeric,LinearAlgebra`
+- `mad` relies on `Vector` from `Data.Vector.Storable`
 
-mad :: Vector -> Vector -> Double
-mad v1 v2                    
-  | DV.length v1 /= 0 = (norm_1 v1 v2) / n 
-  | otherwise = 0.0
-  where 
-    n = fromIntegral . DV.length $ v1 
+**TestModule.hs**
 ```
-test:
-```
+module TestModel where 
+
 import Norm 
 import qualified Data.Vector.Storable as DV
-
 import Test.QuickCheck 
 import Test.Hspec 
 
--- sameLength ::[Double] -> [Double] -> Bool
--- sameLength v1 v2 = length v1 == length v2
+spec :: Spec
+    spec = do
+      describe "Norm has properties:" $  do 
+           it "function mad norm1`div`vector length" $ property $ prop'mad
+
+-- | This is auxiliary function that generate two list of a given type
 gen'equal'length'list :: Int -> Gen ([Double], [Double])
 gen'equal'length'list len =
   let v1 = sequence ([ arbitrary | _ <- [1 .. len] ] :: [Gen Double])
       v2 = sequence ([ arbitrary | _ <- [1 .. len] ] :: [Gen Double])
   in ((,)) <$> v1 <*> v2
 
+-- | This is the version one property of mad
 prop'mad :: Int -> Property
 prop'mad len = forAll (gen'equal'length'list len) $ prop'
   where
@@ -151,8 +151,27 @@ prop'mad len = forAll (gen'equal'length'list len) $ prop'
           l = fromIntegral . length $ v1
           diff =
             (mad (DV.fromList v1) (DV.fromList v2)) - (sum $ abs <$> zipWith (-) v1 v2) / l)
-      in abs diff < 0.0
+      in abs diff < 0.00001
+```
+- The input of prop'mad is `len`, the length of random lists.
+- `QuickCheck` generate `len` randomly. Thus, we get two lists of the same random length.
+- Apply `mad` to inputs and compute `mad` by its definition, then compute their difference `diff`
+- Type transformation might introduce error.
+- As long as the absolute error is smaller than certain threshold (0.00001 in this case) it it acceptable.
 
+**Norm.hs** 
+The test won't pass because `mad` cannot handle empty list. 
+```
+mad :: Vector -> Vector -> Double
+mad v1 v2                    
+  | DV.length v1 /= 0 = (norm_1 v1 v2) / n 
+  | otherwise = 0.0
+  where 
+    n = fromIntegral . DV.length $ v1 
+```
+**TestModule.hs**
+We also need to update the definition of `mad` to handle empty list.
+```
 prop'mad :: Int -> Property
 prop'mad len = forAll (gen'equal'length'list len) $ prop'
   where
@@ -167,13 +186,77 @@ prop'mad len = forAll (gen'equal'length'list len) $ prop'
                    then 0.0
                    else (sum $ abs <$> zipWith (-) v1 v2) / x)
                l)
-      in collect (l) $ collect (diff) $ abs diff < 0.01
+      in collect (l) $ collect (diff) $ abs diff < 0.00001
 ```
+- use `collect` to check the length and diff distribution of all test cases. For example the diff distribution is :
+  ```
+  76% 0.0
+  6% -7.105427357601002e-15
+  5% 7.105427357601002e-15
+  3% -3.552713678800501e-15
+  3% 1.4210854715202004e-14
+  2% -1.4210854715202004e-14
+  2% -2.1316282072803006e-14
+  1% -1.7763568394002505e-15
+  1% -2.842170943040401e-14
+  1% 1.7763568394002505e-15
+  ```
+
+**Norm.hs** 
+`minkowskiDistance` 
+```
+ -- | Minkowski Distance
+ -- in this case p is an Integral number for sure.
+ minkowskiDistance :: Int -> Vector -> Vector -> Double
+ minkowskiDistance p v1 v2 =
+   let vDiff = v1 - v2
+       absV = DV.map abs vDiff
+   in lpnorm p absV
+   where
+     lpnorm :: Int -> Vector -> Double
+     lpnorm 0 vec =
+       let vl = -DV.length vec
+       in norm_1 $ DV.map (f0 vl) vec
+     lpnorm pow vec = nroot pow $ norm_1 $ DV.map (\n -> n ^ p) vec
+     nroot
+       :: (Integral a, Floating b)
+       => a -> b -> b
+     nroot 0 _ = 1
+     nroot n f = f ** (1 / fromIntegral n)
+     f0 :: Int -> Double -> Double
+     f0 l v = (2 ^ l) * (v / (1 + v))
+```
+**TestModule.hs**
+When v1 and v2 are of different length, function will always throw exception for all value possible `p`.
+```
+import Test.QuickCheck.Exception hiding (evaluate)
+import Test.QuickCheck.Monadic
+
+describe "Minkowski distance properties" $
+  do  it "throw exception when v1 and v2 are of different length " $ property $ prop'mink'diff'list'
+
+prop'mink'diff'list' :: Int -> Property
+prop'mink'diff'list' p =
+  (p > 0) ==> monadicIO . run $
+  do r <-
+       tryEvaluate
+         $minkowskiDistance
+         p
+         (DV.fromList [1, 2, 3])
+         (DV.fromList [1, 2, 3, 4, 5])
+     return $
+       case r of
+         Left _ -> True
+         Right _ -> False
+```
+- use `tryEvaluate`, `run`, `monadicIO` from `Test.QuickCheck.Monadic` to handle monadic computations.
+- usually we could also use `evaluate . force` to test for exception. It is exception handling of `Hspec`.
+
 # .Note 
 summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html) 
 
-It is about : 
->   1. `Property` 
+>**contents:**
+>   1. `Testable & Property` 
 >   1. Select desirable element of test set
 >       1. `==>`
 >       1. `forall`
@@ -186,9 +269,8 @@ It is about :
 >       1. sized / resize
 
 >  
-> ## . **Properties**  
->>  ```
->>    newtype Property = MkProperty { unProperty :: Gen Prop }
+> ## . **Testable & Property**  
+>>    ```
 >>
 >>    class Testable prop where
 >>      property :: prop -> Property
@@ -201,14 +283,29 @@ It is about :
 >>    instance [safe] (Arbitrary a, Show a, Testable prop) => Testable (a -> prop)
 >>    ...
 >>  ```
->>  **Intuition** : 
->>    - Many types are `Testable`, `Bool` or function of type `(Testable prop) => a -> prop`.
->>    - `Property` is common wrapper all all types that are `Testable`.
->>      - **TODO** :    
->>            1. more details (maybe a separated doc)    
->>            2. Why is this wrapper necessary .
-> 
 >>  ```
+>>    > :info (==>)
+>>    (==>) :: Testable prop => Bool -> prop -> Property
+>>    > :info collect 
+>>    collect :: (Show a, Testable prop) => a -> prop -> Property
+>>    > :info classify 
+>>    classify :: Testable prop => Bool -> String -> prop -> Property
+>>    > :info forAll
+>>    forAll ::
+>>      (Show a, Testable prop) => Gen a -> (a -> prop) -> Property
+>>    ```
+>>    - Above functions have type **(Testable prop) => \*-> prop -> Property**
+>>    - Functions of this type could easily composed together like this
+>>    ```
+>>      f1 a==> forAll gen $ prop_f 
+>>          where prop_f = collect a $ collect b $ classify c s $ prop_imp
+>>    ```
+>>    - As long as return type is `Testable`, it can be feed to above functions and get another embeddable value.
+>>    - `Property` is an intermediate type that cooperate with `Testable` typeclass.
+>
+> **type initialization**
+>>  ```
+>>
 >>    prop_RevRev xs = reverse (reverse xs) == xs
 >>      where types = xs::[Int]
 >>  ```
@@ -407,18 +504,8 @@ It is about :
 > - `forAll` : used together with Default/Customized Generators.
 > - `choose` : random choose from an interval .
 > - `oneof` : random choose one from a list of Generator.
-
 >
-> ## . TODO
-> - `sized` / `resize` : 
-> - Arbitrary 
-> - Generator Combinator
->   - vectorOf 
->   - elements 
-> - The use of `newtype` wrapper [introduction](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html).
-
-
->- **Generator Combinators**
+>**Generator Combinators**
 >>- **vectorOf**
 >>If `g` is a generator for type `t`, then
 >>`vectorOf n g generates a list of n `t`s
@@ -458,3 +545,13 @@ It is about :
 
 >Hspec
 > - Automatic spec discovery[https://hspec.github.io/hspec-discover.html]
+
+## . TODO
+1. What is `Property` and `Testable`? How `QuickCheck` works based on these abstraction.
+1. `sized` / `resize` : 
+1. Arbitrary 
+1. Generator Combinator
+    1. vectorOf 
+    1. elements 
+1. The use of `newtype` wrapper [introduction](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html).
+1. more examples (maybe a separated doc) .
