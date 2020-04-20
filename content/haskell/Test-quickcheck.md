@@ -396,7 +396,7 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 > - `String` : Name a set of test cases that satisfy above condition.
 > - `Testable prop`: A `Testable` property.
 > Return a `Property` type value enable `embedding` multiple `classify`s together. 
-
+>
 >Example:
 >```
 >  prop_Insert x xs = 
@@ -417,8 +417,8 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 > - Embedded classify `Property`s.
 > - Define test case category with **Condition** `ordered (x:xs)` and **category name** `"at-head"`.
 > - `58% at-head, at-tail` indicates 58% test cases are single element list.
- 
- ### 2. collect
+>
+> ### 2. collect
 >```
 >  collect :: (Show a, Testable prop) => a -> prop -> Property
 >    	-- Defined in ‘Test.QuickCheck.Property’
@@ -428,7 +428,7 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 > - Passed test cases will be categorized by these values.
 > - `a` is `Show`able, it will be category name. 
 >
- 
+>
 > Examples:
 >```
 >  prop_Insert x xs = 
@@ -456,7 +456,7 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 >  4% (93479,129917)
 >```
 > Collecting Data Values. The argument of collect is evaluated in each test case, and the distribution of values is reported. The type of this argument must be in class Show ( from [manual](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html))
-
+>
 > ### 3. Category Combination
 > - `classify` and `collect` define test case category in different way.>> - We could get joint category by combining combining two methods.
 > ```
@@ -506,7 +506,7 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 > - `forAll` : used together with Default/Customized Generators.
 > - `choose` : random choose from an interval .
 > - `oneof` : random choose one from a list of Generator.
-
+>
 >**Generator Combinators**
 >- **vectorOf**
 >If `g` is a generator for type `t`, then
@@ -515,7 +515,7 @@ summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck
 >vectorOf :: Int -> Gen a -> Gen [a]
 >  	-- Defined in ‘Test.QuickCheck.Gen’
 >```
-
+>
 >- **elements**
 >If `xs` is a list, then `elements xs` generates an arbitrary element of `xs`.
 >
