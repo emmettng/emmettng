@@ -134,7 +134,7 @@ spec :: Spec
       describe "Norm has properties:" $  do 
            it "function mad norm1`div`vector length" $ property $ prop'mad
 
--- | This is auxiliary function that generate two list of a given type
+-- | This auxiliary function generates two list of the same length
 gen'equal'length'list :: Int -> Gen ([Double], [Double])
 gen'equal'length'list len =
   let v1 = sequence ([ arbitrary | _ <- [1 .. len] ] :: [Gen Double])

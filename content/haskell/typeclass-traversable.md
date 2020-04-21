@@ -4,7 +4,7 @@ date: 2020-01-09T14:43:58+08:00
 draft: false
 ---
 
-### Reading List 
+### Readings
 - [Typeclass: Foldable]()
 - [wiki book: Traversable](https://en.wikibooks.org/wiki/Haskell/Traversable)
 

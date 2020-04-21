@@ -15,7 +15,7 @@ draft: false
   - [optic well typed](http://www.well-typed.com/blog/2019/09/announcing-the-optics-library/)
 
 ## Recap 
-- Engineering point of view: haskell provides better factorization. 
+- Engineering: haskell provides better factorization. 
 `Better` refers to:
   1. The effect of local modification is predictable.
   1. Business requirement (Functionality) could be organized or analysed by manipulating meaningful type description.
@@ -27,11 +27,36 @@ draft: false
 >**Every piece of information matters in its own way.**
 
 1. `Type Constructor` defines `global representation` of a `type`.
-2. `Type Constructor` may has 
-    - ***Zero*** argument (`a`): Then the `global representation` carries all information of this type .
-    - ***More*** arguments (`T a`): Then the `global representation` consists of 
-      - `a` : can be treated as the `Target type` 
-      - `T` : can be treated as the `Context type`
+2. `Value/Data Constructor` defines `local representation` of a `type`
+3. `Type Constructor` may has 
+    - ***Zero*** argument (`a`): 
+      - `global representation` represents the collections of `local representations`
+      - `local representation` carries all information of this type. For Pattern Match.
+      - eg: `data Bool = True | False`
+        - `global representation` is `Bool`.
+        - `local representations` are `True` & `False`.
+    - ***One*** argument (`T a`): 
+      - `global representation` represents the collection of `local representations`
+        - `a` : represents the `Target Type`.
+        - `T` : represents the `Computational Context` / `Context Type`.
+      - `local representation` carries all information of this type. For Pattern Match.
+      - eg: `data Maybe a = Just a | Nothing`
+        - `global representation` is `Maybe a`.
+          - `a` is the `Target Type`
+          - `Computational Context` is `Maybe`
+        - `local representations` are `Just a ` & `Nothing`.
+    - ***More*** than one argument (`T a b`):
+      - `global representation` represents the collection of `local representations`
+        - `a` : represents the `Target Type`.
+        - `b` : represents the `Target Type`.
+        - `T` : represents the `Computational Context` / `Context Type`.
+      - `local representation` carries all information of this type. For Pattern Match.
+      - eg: `data Either a b = Left a | Right b`
+        - `global representation` is `Either a b`.
+          - `a` is the `Target Type`
+          - `b` is the `Target Type`
+          - `Computational Context` is `Either`
+        - `local representations` are `Left a ` & `Right b`.
 ```
 Example:
 
@@ -40,11 +65,19 @@ data Tree a = Tip | Node a (Tree a) (Tree a)
   - **Global Representation** (***Type constructor***): `Tree a`
   - **Local Representation** (***Value constructor***): ` Tip | Node a (Tree a) ( Tree a)`
   - ***Target Type*** : `'a'` in `global representation`.
-  - ***Context type*** : ` 'Tree' ` in `global representation`.
+  - ***Computational Context/Context type*** : ` 'Tree' ` in `global representation`.
 
-Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on the transform of `target types`. Each computation focus on **One target type at a time**. AND:
+> For convenient 
+> - Value Constructor == Data Constructor
+> - Computational Context == Context Type
 
-- ***Target Type*** : Carries information type we care about. So reasoning behaviour of the target computational chain would be easy.
+## . One Target Type at A Time
+Thanks to the [Currying](https://wiki.haskell.org/Currying) , `Type Constructor` could be parametrized. Usually, and in this doc, the computational chain (function composition) focus on the transform of `target types`. Each computation focus on **One target type at a time**. 
+
+For Parametric types with **More than One** parameters, we focus on the `rightmost` one :
+> eg: `b` in `data Either a b = Left a | Right b`
+
+- ***Target Type*** : Carries type of information we care about. So reasoning behaviour of the target computational chain would be easy.
 - ***Context Type***: This extra piece of information is a wrapper of the target information `a`. It could be used to 
   1. Represent how target information being organized( data structure) 
   1. How target function will be affected in evaluation process(`Applicative`,`Monad`, ect details below)
