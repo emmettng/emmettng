@@ -28,10 +28,17 @@ Each value of `A` or `B` represents a distinct parallel universe. We call `A` an
         - Aggregate along $b_j$ over the Universe Matrix, we get the universe vector `A`: $\sum\limits_j P(a_i,b_j)=P(A)$. It is the same to get universe vector `B` $\sum\limits_i P(a_i,b_j)=P(B)$
         ![joint matrix](../imgs/jointmatrix.jpg)
 
+
     - $P(A|B)$ **Belief Matrix**
         - Conditional Universe Matrix. Two rows of Universe Matrix where `B` take different values. The distributions of `A` could be different: $P(A|b_1) \neq P(A|b_2)$
         - Normalize Joint Universe Matrix $P(A,B)$ with Universe Vector $P(B)$ (By row), we get the Conditional Universe Matrix (**Belief Matrix**): $P(A|B)=\frac{P(A,B)}{P(B)}$
         >$\sum\limits_iP(a_i|b_j)=1$ 
+        - Divide : ( $/$ ) and Condition: ( $|$ ) mean:
+            - normalization ($\frac{performance}{normalization factors}$) 
+            - compare among parallel universes with same conditional configurations: $P(A,B,C | D,E,F,G)$
+            - computationally they all relies on `/` operation.
+            - intuitively they are doing comparison with in same context.
+
         
         ![Belief Matrix](../imgs/conditionalmatrix.jpg)
 
