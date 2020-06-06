@@ -17,17 +17,17 @@ draft: false
 ## B. Problems of A  
 
 - Things never happened in that order.
-- The requirements of our end-users could be paradoxical and the first version narrative has never been the same as what actually need to be done eventually. 
-- Data contamination happens(ageing equipment, nonstandard operation, seasons, local convention, etc). So `Empirical Reference` need to be examined very carefully. 
+- The requirements of our end-users could be paradoxical and the first version narrative has never been the same as what actually needs to be done eventually. 
+- Data contamination happens(ageing equipment, nonstandard operation, seasons, local convention, etc). So `Empirical Reference` needs to be examined very carefully. 
 - Data is valid `iff` wrong value will cause problem and someone will be punished due to this problem. Upstream data from sales or manufacture department could be wrong or intentionally `adjusted` in their own interests (imbalanced or invalid normalization).
 -  `System bias implies the existence of certain effective domain. Only, it is not clear how this domain could be strictly identified by other features.` (***It is significantly cost effective as a baseline***.)
 
 ## C. `Discriminative` and `Generative`
 1. It is extremely hard for managers to resist the temptation of possible causal relation. `It is necessary to proactively help downstream clients to sharpen their requirement in order to guarantee that our works being integrated with other business logic correctly`. 
 
->Simple analogies that can be used to suppress end-users' desire for causality:
-    > - `There is such a place, people who goes to there would take higher risk of not coming back alive. We should just avoid of being there.But what if that place is called 'Hospital'? `
-    > - `People who eat salad usually has a healthy body shape. How about eating TEN times more? Presumably, it would make you TEM times more healthier. `
+Simple analogies that can be used to suppress end-users' desire for causality:
+- `There is such a place, people who goes to there would take higher risk of not coming back alive. We should just avoid of being there.But what if that place is called 'Hospital'? `
+- `People who eat salad usually has a healthy body shape. How about eating TEN times more? Presumably, it would make you TEM times more healthier. `
     
 ## D. Machine Learning 
 - Trying modeling with large number of parameters would confine the validity of this model within an extremely small domain. Out of domain prediction is an illusion brought by low dimensional problem. 
