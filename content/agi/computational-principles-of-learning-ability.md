@@ -56,7 +56,7 @@ The best way to guarantee the well functioning of a system is to integrate **HUM
 **We** are the general purpose universal optimization strategy.
 
 
-**SO**, does the existence of **HUMAN** disproved the NFL-theorem?
+**SO**, does the existence of **HUMAN** disprove the NFL-theorem?
 
 **Assume** 
 
