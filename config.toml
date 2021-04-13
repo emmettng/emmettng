@@ -23,7 +23,7 @@ disable404     = false
 disableHugoGeneratorInject = false
 
 [author]
-  name = "WU HAO"
+  name = "emmettng"
 
 [params]
   dateform        = "Jan 2, 2006"
@@ -43,17 +43,17 @@ disableHugoGeneratorInject = false
 
 # Social icons
 
-  [[params.social]]
-    name = "email"
-    url  = "mailto:wuhao29@gmail.com"
+#  [[params.social]]
+#    name = "email"
+#    url  = "mailto:wuhao29@gmail.com"
 
 #  [[params.social]]
 #    name = "github"
 #    url  = "https://github.com/emmettng"
 
-  [[params.social]]
-    name = "linkedin"
-    url  = "https://www.linkedin.com/in/hao-w-5a11ab58/"
+#  [[params.social]]
+#    name = "linkedin"
+#    url  = "https://www.linkedin.com/in/hao-w-5a11ab58/"
 
 
 [languages]
