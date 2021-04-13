@@ -255,18 +255,18 @@ prop'mink'diff'list' p =
 # .Note 
 summary based on [Quickcheck manual](http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html) 
 
->**contents:**
->   1. `Testable & Property` 
->   1. Select desirable element of test set
->       1. `==>`
->       1. `forall`
->   1. Describe test sets distribution
->       1. `classify`
->       1. `collect`
->   1. Generate test set 
->       1. choose
->       1. oneOf
->       1. sized / resize
+**contents:**
+   1. `Testable & Property` 
+   1. Select desirable element of test set
+       1. `==>`
+       1. `forall`
+   1. Describe test sets distribution
+       1. `classify`
+       1. `collect`
+   1. Generate test set 
+       1. choose
+       1. oneOf
+       1. sized / resize
 
 >  
 > ## . **Testable & Property**  

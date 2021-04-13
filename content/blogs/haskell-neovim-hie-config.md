@@ -36,3 +36,8 @@ draft: false
   ([neovim setup instruction](https://jdhao.github.io/2018/12/24/centos_nvim_install_use_guide_en/#builtin-terminal))
 
 - select correct ghc version to cooperate with `ghcide`.
+
+
+## vscode config 
+[this blog works for simple project](https://medium.com/@dogwith1eye/setting-up-haskell-in-vs-code-with-stack-and-the-ide-engine-81d49eda3ecf)
+**TODO** need to figure out how it could works for multi main project

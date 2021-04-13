@@ -27,7 +27,7 @@ type ReaderT r m a = ReaderT { runReaderT :: r -> m a }
 ```
 ask :: (Monad m) => ReaderT r m r
 ask = ReaderT return
-    -- return :: r -> m r , return in this case is defined for 'm'
+    -- return :: r -> m r , return in this case is defined for 'Monad m'
 ```
 
 ### local
@@ -60,11 +60,12 @@ asks f = ReaderT (return . f)
 ```
 
 #### Common usage
-1. use `ask` to introduce the `env` into computation. (almost compulsory, asks is rarely being used)
-2. so we could construct functions of type `a -> Reader r b` or just `Reader r b`. (compulsory)
-3. `local` or `withReaderT` alter environment (optional)
-5. `runReader` or `runreaderT` to unwrap functions. (compulsory)
-6. Feed the `env` information (compulsory)
+1. use `ask` to introduce the `env` into computation (toy models). 
+1. use `asks`, `Has` type class , `MonadReader` and `ReaderT` pattern. 
+1. so we could construct functions of type `a -> Reader r b` or just `Reader r b`. (compulsory)
+1. `local` or `withReaderT` alter environment (optional)
+1. `runReader` or `runreaderT` to unwrap functions. (compulsory)
+1. Feed the `env` information (compulsory)
    
 #### Intuition:
 Pass Env/Context/Configuration information through a chain of operations that depend on same set of configurations.
